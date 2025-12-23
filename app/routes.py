@@ -42,6 +42,17 @@ def _get_email_credentials():
     return user, password
 
 
+def _wants_json() -> bool:
+    """Heuristic to decide if the client expects a JSON response (AJAX).
+
+    Used so /report/email can stay on the same page via fetch() while
+    still supporting classic form submissions with redirects.
+    """
+    accept = (request.headers.get("Accept") or "").lower()
+    requested_with = (request.headers.get("X-Requested-With") or "").lower()
+    return "application/json" in accept or requested_with == "xmlhttprequest"
+
+
 def _generate_pdf_report(
     cleaned_text: str,
     characters: list,
@@ -326,7 +337,8 @@ def download_report_pdf():
     raw_text = (request.form.get("report_text") or "").strip()
     if not raw_text:
         flash("FIR text is empty. Please ensure there is content before generating a report.", "error")
-        return redirect(request.referrer or url_for("main.index"))
+        # Always redirect to a GET-safe route to avoid 405 errors from POST-only pages.
+        return redirect(url_for("main.index"))
 
     cleaned = format_text(raw_text)
     analysis_text = cleaned.strip() if cleaned else raw_text
@@ -354,7 +366,7 @@ def download_report_pdf():
     except Exception as exc:  # noqa: BLE001
         _debug("report.pdf_error", str(exc))
         flash("Failed to generate PDF report. Please try again.", "error")
-        return redirect(request.referrer or url_for("main.index"))
+        return redirect(url_for("main.index"))
 
 
 def _send_report_email(recipient: str, pdf_bytes: bytes):
@@ -386,12 +398,18 @@ def email_report_pdf():
     recipient = (request.form.get("email") or "").strip()
 
     if not raw_text:
-        flash("FIR text is empty. Please ensure there is content before generating a report.", "error")
-        return redirect(request.referrer or url_for("main.index"))
+        msg = "FIR text is empty. Please ensure there is content before generating a report."
+        if _wants_json():
+            return jsonify({"status": "error", "message": msg}), 400
+        flash(msg, "error")
+        return redirect(url_for("main.index"))
 
     if not recipient or "@" not in recipient:
-        flash("Please provide a valid email address.", "error")
-        return redirect(request.referrer or url_for("main.index"))
+        msg = "Please provide a valid email address."
+        if _wants_json():
+            return jsonify({"status": "error", "message": msg}), 400
+        flash(msg, "error")
+        return redirect(url_for("main.index"))
 
     cleaned = format_text(raw_text)
     analysis_text = cleaned.strip() if cleaned else raw_text
@@ -411,12 +429,18 @@ def email_report_pdf():
             locations,
         )
         _send_report_email(recipient, pdf_bytes)
-        flash("Report emailed successfully.", "success")
+        msg = "Report emailed successfully."
+        if _wants_json():
+            return jsonify({"status": "ok", "message": msg})
+        flash(msg, "success")
     except Exception as exc:  # noqa: BLE001
         _debug("report.email_error", str(exc))
-        flash("Failed to send email report. Please verify the email configuration and try again.", "error")
+        msg = "Failed to send email report. Please verify the email configuration and try again."
+        if _wants_json():
+            return jsonify({"status": "error", "message": msg}), 500
+        flash(msg, "error")
 
-    return redirect(request.referrer or url_for("main.index"))
+    return redirect(url_for("main.index"))
 
 
 def build_questions(extracted_text: str):

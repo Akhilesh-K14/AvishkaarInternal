@@ -209,6 +209,25 @@
     @media (max-width: 720px) {
       .report-email-row { grid-template-columns: 1fr; }
     }
+
+    /* Email toast + tick animation */
+    .email-toast { position: fixed; right: 24px; bottom: 24px; z-index: 9999; padding: 12px 16px; border-radius: 16px; background: radial-gradient(circle at 0 0, rgba(138,243,255,0.36), transparent 55%), rgba(6,14,22,0.96); border: 1px solid rgba(138,243,255,0.5); box-shadow: 0 18px 40px rgba(0,0,0,0.75); display: flex; align-items: center; gap: 10px; opacity: 0; pointer-events: none; transform: translateY(12px) scale(0.9); transition: opacity 0.25s ease, transform 0.25s ease; }
+    .email-toast.visible { opacity: 1; pointer-events: auto; transform: translateY(0) scale(1); }
+    .email-toast-icon { position: relative; width: 26px; height: 26px; border-radius: 999px; border: 2px solid rgba(138,243,255,0.9); box-shadow: 0 0 18px rgba(138,243,255,0.9); display: inline-flex; align-items: center; justify-content: center; overflow: hidden; }
+    .email-toast-icon::before, .email-toast-icon::after { content: ''; position: absolute; background: linear-gradient(135deg, #8af3ff, #5ed2ff); border-radius: 999px; }
+    /* Crazy "sending" orbit ring */
+    .email-toast.sending .email-toast-icon::before { width: 140%; height: 2px; top: 50%; left: -20%; transform-origin: center; animation: emailOrbit 0.7s linear infinite; }
+    .email-toast.sending .email-toast-icon::after { width: 4px; height: 4px; border-radius: 50%; box-shadow: 0 0 10px rgba(138,243,255,0.8); animation: emailSpark 0.7s linear infinite; }
+    /* Checkmark state */
+    .email-toast.success .email-toast-icon { background: radial-gradient(circle at 30% 0%, rgba(255,255,255,0.35), transparent 60%), linear-gradient(135deg, #8af3ff, #5ed2ff); animation: emailPop 0.35s ease-out forwards; }
+    .email-toast.success .email-toast-icon::before { width: 4px; height: 10px; border-radius: 999px; background: #041016; box-shadow: none; transform: rotate(45deg) translate(1px, 0); bottom: 7px; left: 11px; animation: none; }
+    .email-toast.success .email-toast-icon::after { width: 4px; height: 18px; border-radius: 999px; background: #041016; box-shadow: none; transform: rotate(-45deg) translate(1px, 1px); bottom: 3px; left: 15px; animation: none; }
+    .email-toast.error { border-color: rgba(252, 165, 165, 0.9); box-shadow: 0 18px 40px rgba(127,29,29,0.7); }
+    .email-toast.error .email-toast-icon { border-color: rgba(252,165,165,0.9); box-shadow: 0 0 18px rgba(252,165,165,0.9); }
+    .email-toast-text { font-size: 13px; color: #e8f7ff; }
+    @keyframes emailOrbit { 0% { transform: rotate(0deg) translateX(0); } 50% { transform: rotate(180deg) translateX(3px); } 100% { transform: rotate(360deg) translateX(0); } }
+    @keyframes emailSpark { 0% { transform: rotate(0deg) translate(10px, -2px); opacity: 1; } 50% { transform: rotate(180deg) translate(-4px, 2px); opacity: 0.6; } 100% { transform: rotate(360deg) translate(10px, -2px); opacity: 1; } }
+    @keyframes emailPop { 0% { transform: scale(0.4); } 70% { transform: scale(1.15); } 100% { transform: scale(1); } }
   </style>
 </head>
 <body>
@@ -477,6 +496,12 @@
         </div>
       </div>
     </section>
+  </div>
+
+  <!-- Email status toast -->
+  <div class="email-toast" id="email-toast" aria-live="polite" aria-atomic="true">
+    <div class="email-toast-icon"></div>
+    <div class="email-toast-text" id="email-toast-text">Sending report…</div>
   </div>
 
   <script>
@@ -898,6 +923,8 @@
     const downloadReportText = document.getElementById('download-report-text');
     const emailReportText = document.getElementById('email-report-text');
     const reportEmailInput = document.getElementById('report-email-input');
+    const emailToast = document.getElementById('email-toast');
+    const emailToastText = document.getElementById('email-toast-text');
 
     const getFirText = () => (firTextArea ? firTextArea.value.trim() : '');
 
@@ -914,14 +941,59 @@
     }
 
     if (emailReportForm && emailReportText && reportEmailInput) {
-      emailReportForm.addEventListener('submit', (e) => {
+      const showEmailToast = (state, message) => {
+        if (!emailToast || !emailToastText) return;
+        emailToast.classList.remove('sending', 'success', 'error');
+        if (state) emailToast.classList.add(state);
+        emailToastText.textContent = message;
+        emailToast.classList.add('visible');
+        if (state === 'success' || state === 'error') {
+          setTimeout(() => {
+            emailToast.classList.remove('visible');
+          }, 2600);
+        }
+      };
+
+      emailReportForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
         const txt = getFirText();
         if (!txt) {
-          e.preventDefault();
           alert('Please ensure the FIR text is present before emailing a report.');
           return;
         }
+        const email = reportEmailInput.value.trim();
+        if (!email || !email.includes('@')) {
+          alert('Please enter a valid email address.');
+          return;
+        }
+
         emailReportText.value = txt;
+
+        showEmailToast('sending', 'Sending report…');
+        const submitBtn = emailReportForm.querySelector('button[type="submit"]');
+        if (submitBtn) submitBtn.disabled = true;
+
+        try {
+          const formData = new FormData(emailReportForm);
+          const res = await fetch('/report/email', {
+            method: 'POST',
+            body: formData,
+            headers: {
+              'X-Requested-With': 'XMLHttpRequest'
+            }
+          });
+          const data = await res.json().catch(() => ({}));
+
+          if (res.ok && data.status === 'ok') {
+            showEmailToast('success', data.message || 'Report emailed successfully.');
+          } else {
+            showEmailToast('error', (data && data.message) || 'Failed to send email report.');
+          }
+        } catch (err) {
+          showEmailToast('error', 'Network error while sending report.');
+        }
+
+        if (submitBtn) submitBtn.disabled = false;
       });
     }
   </script>
