@@ -962,8 +962,10 @@
           return;
         }
         const email = reportEmailInput.value.trim();
-        if (!email || !email.includes('@')) {
-          alert('Please enter a valid email address.');
+        // Mirror backend: simple format check (not existence).
+        const emailPattern = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+        if (!emailPattern.test(email)) {
+          alert('Please enter a valid, correctly formatted email address.');
           return;
         }
 

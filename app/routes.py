@@ -42,6 +42,22 @@ def _get_email_credentials():
     return user, password
 
 
+def _is_valid_email_format(address: str) -> bool:
+    """Basic RFC5322-ish email format check (does not verify mailbox exists).
+
+    This prevents obviously invalid inputs but cannot guarantee that the
+    mailbox is real or reachable – that depends on the remote mail server.
+    """
+    if not address or "@" not in address:
+        return False
+    local, _, domain = address.rpartition("@");
+    if not local or not domain or "." not in domain:
+        return False
+    if " " in address:
+        return False
+    return True
+
+
 def _wants_json() -> bool:
     """Heuristic to decide if the client expects a JSON response (AJAX).
 
@@ -404,8 +420,8 @@ def email_report_pdf():
         flash(msg, "error")
         return redirect(url_for("main.index"))
 
-    if not recipient or "@" not in recipient:
-        msg = "Please provide a valid email address."
+    if not _is_valid_email_format(recipient):
+        msg = "Please provide a valid, correctly formatted email address."
         if _wants_json():
             return jsonify({"status": "error", "message": msg}), 400
         flash(msg, "error")
@@ -429,7 +445,9 @@ def email_report_pdf():
             locations,
         )
         _send_report_email(recipient, pdf_bytes)
-        msg = "Report emailed successfully."
+        # NOTE: SMTP cannot guarantee that the mailbox actually exists –
+        # it only confirms that our server accepted the message for delivery.
+        msg = "Report Sent Successfully!"
         if _wants_json():
             return jsonify({"status": "ok", "message": msg})
         flash(msg, "success")
