@@ -58,7 +58,11 @@
       background-size: 4rem 4rem; mask-image: radial-gradient(ellipse 60% 50% at 50% 50%, #000 70%, transparent 100%); }
     .gradient-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(255, 255, 255, 0.08), transparent, rgba(255, 255, 255, 0.08)); opacity: 0.35; }
     .vignette { position: absolute; inset: -8%; pointer-events: none; background: radial-gradient(circle at center, transparent 52%, rgba(0, 0, 0, 0.35) 75%, rgba(0, 0, 0, 0.55) 100%); mix-blend-mode: multiply; opacity: 0.6; }
-    .watermark-mask { position: absolute; bottom: 0; right: 0; width: 160px; height: 80px; pointer-events: none; background: radial-gradient(ellipse at bottom right, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.8) 35%, rgba(0, 0, 0, 0.6) 60%, rgba(0, 0, 0, 0) 100%); z-index: 1; }
+    /* Corner badge to cover Spline watermark */
+    .corner-badge { position: fixed; bottom: 16px; right: 16px; z-index: 9999; display: flex; align-items: center; gap: 8px; padding: 12px 18px; background: linear-gradient(135deg, rgba(12,14,18,0.96), rgba(6,8,12,0.98)); border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; box-shadow: 0 10px 32px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.05) inset; backdrop-filter: blur(12px); pointer-events: none; }
+    .corner-badge-dot { width: 8px; height: 8px; border-radius: 50%; background: linear-gradient(135deg, #8af3ff, #5ed2ff); box-shadow: 0 0 10px rgba(138,243,255,0.8); animation: badgePulse 2s ease-in-out infinite; }
+    .corner-badge-text { font-size: 12px; font-weight: 700; letter-spacing: 1.5px; color: rgba(255,255,255,0.85); text-transform: uppercase; }
+    @keyframes badgePulse { 0%, 100% { opacity: 0.6; transform: scale(0.9); } 50% { opacity: 1; transform: scale(1.1); } }
     .content { position: relative; z-index: 10; }
     .hero { padding-top: 80px; padding-bottom: 128px; text-align: center; }
     .hero-content { max-width: 960px; margin: 0 auto; }
@@ -249,7 +253,12 @@
     <div class="grid-overlay"></div>
     <div class="gradient-overlay"></div>
     <div class="vignette"></div>
-    <div class="watermark-mask"></div>
+  </div>
+
+  <!-- Corner badge to cover Spline watermark -->
+  <div class="corner-badge">
+    <div class="corner-badge-dot"></div>
+    <span class="corner-badge-text">Justice AI</span>
   </div>
 
   <div class="content">
