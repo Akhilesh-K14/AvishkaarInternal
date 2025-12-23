@@ -193,6 +193,22 @@
     .loading-box { padding: 22px 28px; border-radius: 16px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); box-shadow: 0 24px 60px rgba(0,0,0,0.55); display: grid; gap: 10px; text-align: center; }
     .spinner { width: 44px; height: 44px; border: 4px solid rgba(255,255,255,0.2); border-top-color: #ffffff; border-radius: 50%; margin: 0 auto; animation: spin 0.9s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
+    /* Report export section */
+    .report-wrapper { margin: 72px auto 40px; max-width: 960px; }
+    .report-card { position: relative; padding: 22px 22px 20px; border-radius: 20px; background: radial-gradient(circle at 0% 0%, rgba(138,243,255,0.16), transparent 52%), rgba(12,16,24,0.9); border: 1px solid rgba(255,255,255,0.08); backdrop-filter: blur(18px); box-shadow: 0 26px 70px rgba(0,0,0,0.65), 0 0 0 1px rgba(255,255,255,0.04) inset; overflow: hidden; }
+    .report-card::before { content: ''; position: absolute; inset: -40%; background: radial-gradient(circle at 10% 0%, rgba(138,243,255,0.24), transparent 55%), radial-gradient(circle at 90% 120%, rgba(255,255,255,0.18), transparent 60%); opacity: 0.3; mix-blend-mode: screen; pointer-events: none; }
+    .report-actions { position: relative; z-index: 1; display: grid; gap: 14px; }
+    .report-actions form { margin: 0; }
+    .report-email-row { display: grid; grid-template-columns: minmax(0, 1.8fr) auto; gap: 12px; align-items: center; }
+    .report-input { width: 100%; padding: 12px 14px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.14); background: rgba(0,0,0,0.35); color: #f5f5f5; font-size: 14px; font-family: 'Space Grotesk', system-ui, sans-serif; outline: none; transition: border-color 0.2s, box-shadow 0.2s, background 0.2s; }
+    .report-input::placeholder { color: #8fb5d5; }
+    .report-input:focus { border-color: rgba(138,243,255,0.55); box-shadow: 0 0 0 3px rgba(138,243,255,0.18); background: rgba(0,0,0,0.5); }
+    .report-btn-3d { position: relative; transform-style: preserve-3d; box-shadow: 0 18px 50px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.06) inset; }
+    .report-btn-3d:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 22px 60px rgba(0,0,0,0.7), 0 0 0 1px rgba(138,243,255,0.35) inset; }
+    .report-hint { position: relative; z-index: 1; margin-top: 10px; font-size: 12px; color: #cfefff; opacity: 0.9; text-align: left; }
+    @media (max-width: 720px) {
+      .report-email-row { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
@@ -418,6 +434,45 @@
                 ⚠️ <strong>Disclaimer:</strong> Advisory insights only. Verify independently—this is not legal advice.
               </div>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Report Export Section -->
+      <div class="report-wrapper reveal">
+        <div class="section-header" style="margin-bottom: 10px;">
+          <div class="pill">
+            <div class="status-dots"><span></span><span></span><span></span></div>
+            <span>Case report export</span>
+          </div>
+          <div class="section-title">Export &amp; share report</div>
+          <div class="section-sub">Download a full PDF brief of this FIR or send it directly over email.</div>
+        </div>
+
+        <div class="report-card">
+          <div class="report-actions">
+            <form id="download-report-form" method="post" action="/report/pdf">
+              <input type="hidden" name="report_text" id="download-report-text">
+              <button type="submit" class="btn-primary report-btn-3d">Download PDF Report</button>
+            </form>
+
+            <form id="email-report-form" method="post" action="/report/email">
+              <input type="hidden" name="report_text" id="email-report-text">
+              <div class="report-email-row">
+                <input
+                  type="email"
+                  name="email"
+                  id="report-email-input"
+                  class="report-input"
+                  placeholder="Enter email address to send report"
+                  required
+                >
+                <button type="submit" class="btn-secondary report-btn-3d">Email PDF Report</button>
+              </div>
+            </form>
+          </div>
+          <div class="report-hint">
+            Uses the current edited FIR text and AI-generated insights to produce a concise multi-section PDF. Email delivery relies on secure SMTP credentials configured on the server.
           </div>
         </div>
       </div>
@@ -834,6 +889,39 @@
       chatSendBtn.addEventListener('click', sendChat);
       chatInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') sendChat();
+      });
+    }
+
+    // Report export wiring - keep in sync with edited FIR text
+    const downloadReportForm = document.getElementById('download-report-form');
+    const emailReportForm = document.getElementById('email-report-form');
+    const downloadReportText = document.getElementById('download-report-text');
+    const emailReportText = document.getElementById('email-report-text');
+    const reportEmailInput = document.getElementById('report-email-input');
+
+    const getFirText = () => (firTextArea ? firTextArea.value.trim() : '');
+
+    if (downloadReportForm && downloadReportText) {
+      downloadReportForm.addEventListener('submit', (e) => {
+        const txt = getFirText();
+        if (!txt) {
+          e.preventDefault();
+          alert('Please ensure the FIR text is present before generating a report.');
+          return;
+        }
+        downloadReportText.value = txt;
+      });
+    }
+
+    if (emailReportForm && emailReportText && reportEmailInput) {
+      emailReportForm.addEventListener('submit', (e) => {
+        const txt = getFirText();
+        if (!txt) {
+          e.preventDefault();
+          alert('Please ensure the FIR text is present before emailing a report.');
+          return;
+        }
+        emailReportText.value = txt;
       });
     }
   </script>

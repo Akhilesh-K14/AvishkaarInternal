@@ -1,13 +1,21 @@
+import io
 import json
 import os
+import smtplib
 import tempfile
+from datetime import datetime
+from email.message import EmailMessage
 
 import cv2
 import numpy as np
 import pytesseract
 from dotenv import load_dotenv
-from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
+from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, Response
 from openai import OpenAI
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.units import mm
+from reportlab.lib.utils import simpleSplit
+from reportlab.pdfgen import canvas
 from werkzeug.utils import secure_filename
 
 main = Blueprint("main", __name__)
@@ -25,6 +33,136 @@ def _debug(label: str, payload):
         print(f"[DEBUG] {label}: {payload}")
     except Exception:
         print(f"[DEBUG] {label}: <unprintable>")
+
+
+def _get_email_credentials():
+    """Return email user/password from env (do not hardcode secrets)."""
+    user = os.getenv("REPORT_EMAIL_USER") or os.getenv("EMAIL_USER")
+    password = os.getenv("REPORT_EMAIL_PASSWORD") or os.getenv("EMAIL_PASSWORD")
+    return user, password
+
+
+def _generate_pdf_report(
+    cleaned_text: str,
+    characters: list,
+    character_profiles: list,
+    general_questions: list,
+    roadmap_steps: list,
+    locations: list,
+) -> bytes:
+    """Generate a compact PDF summary for the FIR analysis and return bytes."""
+    buffer = io.BytesIO()
+    pdf = canvas.Canvas(buffer, pagesize=A4)
+    width, height = A4
+
+    margin_x = 20 * mm
+    margin_top = height - 25 * mm
+    margin_bottom = 20 * mm
+
+    text_obj = pdf.beginText()
+    text_obj.setTextOrigin(margin_x, margin_top)
+    text_obj.setFont("Helvetica-Bold", 16)
+    text_obj.textLine("JUSTICE AI - FIR Investigation Report")
+    text_obj.setFont("Helvetica", 9)
+    text_obj.textLine("")
+    text_obj.textLine(f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    text_obj.textLine("")
+
+    def add_section(title: str, body_lines: list[str]):
+        nonlocal text_obj
+        if text_obj.getY() < margin_bottom + 40:
+            pdf.drawText(text_obj)
+            pdf.showPage()
+            text_obj = pdf.beginText()
+            text_obj.setTextOrigin(margin_x, margin_top)
+        text_obj.setFont("Helvetica-Bold", 12)
+        text_obj.textLine(title)
+        text_obj.setFont("Helvetica", 9)
+        text_obj.textLine("")
+        max_width = width - 2 * margin_x
+        for raw in body_lines:
+            if not raw:
+                text_obj.textLine("")
+                continue
+            wrapped = simpleSplit(raw, "Helvetica", 9, max_width)
+            for line in wrapped:
+                if text_obj.getY() < margin_bottom:
+                    pdf.drawText(text_obj)
+                    pdf.showPage()
+                    text_obj = pdf.beginText()
+                    text_obj.setTextOrigin(margin_x, margin_top)
+                    text_obj.setFont("Helvetica", 9)
+                text_obj.textLine(line)
+        text_obj.textLine("")
+
+    # Section: FIR text (trim to keep file small)
+    snippet = (cleaned_text or "No text provided.").strip()
+    if len(snippet) > 4000:
+        snippet = snippet[:4000] + "\n[... truncated for brevity in PDF ...]"
+    add_section("FIR Text (cleaned)", snippet.splitlines() or [snippet])
+
+    # Section: Characters and questions
+    if characters:
+        lines = []
+        for person in characters:
+            name = str(person.get("name", "Unknown")).strip()
+            qs = person.get("questions") or []
+            lines.append(f"- {name}:")
+            for q in qs:
+                lines.append(f"   • {q}")
+            lines.append("")
+    else:
+        lines = ["No specific characters detected; using general questions only."]
+    add_section("Character-based Questions", lines)
+
+    # Section: General questions
+    if general_questions:
+        g_lines = [f"• {q}" for q in general_questions]
+    else:
+        g_lines = ["No general questions available."]
+    add_section("General Investigative Questions", g_lines)
+
+    # Section: Character profiles
+    if character_profiles:
+        p_lines = []
+        for profile in character_profiles:
+            p_lines.append(f"- {profile.get('name', 'Unknown')}")
+            p_lines.append(f"   Phone: {profile.get('phone', 'Not captured')}")
+            p_lines.append(f"   Address: {profile.get('address', 'Not captured')}")
+            notes = profile.get("notes") or "No additional notes found"
+            p_lines.append(f"   Notes: {notes}")
+            p_lines.append("")
+    else:
+        p_lines = ["No character profiles could be extracted from the FIR text."]
+    add_section("Character Profiles", p_lines)
+
+    # Section: Roadmap
+    if roadmap_steps:
+        r_lines = []
+        for idx, step in enumerate(roadmap_steps, start=1):
+            r_lines.append(f"{idx}. {step.get('title', 'Untitled step')}")
+            detail = step.get("detail") or ""
+            if detail:
+                r_lines.append(f"   {detail}")
+            r_lines.append("")
+    else:
+        r_lines = ["No roadmap steps available."]
+    add_section("Investigation Roadmap", r_lines)
+
+    # Section: Locations
+    if locations:
+        loc_lines = []
+        for loc in locations:
+            loc_lines.append(f"- {loc.get('title', 'Location')}: {loc.get('address', '')}")
+    else:
+        loc_lines = ["No locations were detected in the FIR text."]
+    add_section("Locations / Addresses", loc_lines)
+
+    pdf.drawText(text_obj)
+    pdf.showPage()
+    pdf.save()
+    buffer.seek(0)
+    return buffer.read()
 
 @main.route("/")
 def index():
@@ -180,6 +318,105 @@ FIR Document Content:
     except Exception as exc:
         _debug("chat.error", str(exc))
         return jsonify({"reply": "I apologize, but I encountered an error processing your request. Please try again."}), 500
+
+
+@main.route("/report/pdf", methods=["POST"])
+def download_report_pdf():
+    """Generate a PDF report for the current FIR context and return it as a download."""
+    raw_text = (request.form.get("report_text") or "").strip()
+    if not raw_text:
+        flash("FIR text is empty. Please ensure there is content before generating a report.", "error")
+        return redirect(request.referrer or url_for("main.index"))
+
+    cleaned = format_text(raw_text)
+    analysis_text = cleaned.strip() if cleaned else raw_text
+
+    characters, general_questions = build_questions(analysis_text)
+    character_profiles = extract_character_profiles(analysis_text)
+    roadmap_steps = build_roadmap(analysis_text, characters, general_questions)
+    locations = extract_locations(analysis_text)
+
+    try:
+        pdf_bytes = _generate_pdf_report(
+            analysis_text,
+            characters,
+            character_profiles,
+            general_questions,
+            roadmap_steps,
+            locations,
+        )
+        _debug("report.pdf_size_bytes", len(pdf_bytes))
+        headers = {
+            "Content-Type": "application/pdf",
+            "Content-Disposition": "attachment; filename=firm_report.pdf",
+        }
+        return Response(pdf_bytes, headers=headers)
+    except Exception as exc:  # noqa: BLE001
+        _debug("report.pdf_error", str(exc))
+        flash("Failed to generate PDF report. Please try again.", "error")
+        return redirect(request.referrer or url_for("main.index"))
+
+
+def _send_report_email(recipient: str, pdf_bytes: bytes):
+    """Send the generated PDF report to the provided email address via SMTP."""
+    user, password = _get_email_credentials()
+    _debug("report.email_user_present", bool(user))
+    if not user or not password:
+        raise RuntimeError("Email credentials are not configured on the server.")
+
+    msg = EmailMessage()
+    msg["Subject"] = "JUSTICE AI - FIR Investigation Report"
+    msg["From"] = user
+    msg["To"] = recipient
+    msg.set_content(
+        """Attached is the PDF report generated from the FIR analysis in JUSTICE AI.\n\nThis is an automated message."""
+    )
+    msg.add_attachment(pdf_bytes, maintype="application", subtype="pdf", filename="fir_report.pdf")
+
+    with smtplib.SMTP("smtp.gmail.com", 587) as smtp:
+        smtp.starttls()
+        smtp.login(user, password)
+        smtp.send_message(msg)
+
+
+@main.route("/report/email", methods=["POST"])
+def email_report_pdf():
+    """Generate a PDF report and email it to the provided address."""
+    raw_text = (request.form.get("report_text") or "").strip()
+    recipient = (request.form.get("email") or "").strip()
+
+    if not raw_text:
+        flash("FIR text is empty. Please ensure there is content before generating a report.", "error")
+        return redirect(request.referrer or url_for("main.index"))
+
+    if not recipient or "@" not in recipient:
+        flash("Please provide a valid email address.", "error")
+        return redirect(request.referrer or url_for("main.index"))
+
+    cleaned = format_text(raw_text)
+    analysis_text = cleaned.strip() if cleaned else raw_text
+
+    characters, general_questions = build_questions(analysis_text)
+    character_profiles = extract_character_profiles(analysis_text)
+    roadmap_steps = build_roadmap(analysis_text, characters, general_questions)
+    locations = extract_locations(analysis_text)
+
+    try:
+        pdf_bytes = _generate_pdf_report(
+            analysis_text,
+            characters,
+            character_profiles,
+            general_questions,
+            roadmap_steps,
+            locations,
+        )
+        _send_report_email(recipient, pdf_bytes)
+        flash("Report emailed successfully.", "success")
+    except Exception as exc:  # noqa: BLE001
+        _debug("report.email_error", str(exc))
+        flash("Failed to send email report. Please verify the email configuration and try again.", "error")
+
+    return redirect(request.referrer or url_for("main.index"))
 
 
 def build_questions(extracted_text: str):
