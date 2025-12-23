@@ -16,8 +16,9 @@ AI-assisted FIR analysis and investigation support dashboard built for hackathon
 
 ## Environment Variables
 Create a `.env` file in the project root with the keys you need:
-- `OPENAI_API_KEY` (required if Gemini is not available)
-- `GEMINI_API_KEY` (optional, primary if present)
+- `GEMINI_API_KEY` (required for chatbot via Apps Script proxy)
+- `GEMINI_APPS_SCRIPT_URL` (required; deployed Apps Script Web App URL that fronts Gemini)
+- `OPENAI_API_KEY` (used by non-chatbot features if configured)
 - `REPORT_EMAIL_USER` / `REPORT_EMAIL_PASSWORD` (optional, needed for email delivery)
 
 ## Setup

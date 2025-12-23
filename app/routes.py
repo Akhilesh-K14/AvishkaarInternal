@@ -9,6 +9,7 @@ from email.message import EmailMessage
 import cv2
 import numpy as np
 import pytesseract
+import requests
 from dotenv import load_dotenv
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, Response
 from openai import OpenAI
@@ -40,28 +41,57 @@ def _invoke_gemini_text(
     temperature: float = 0.7,
     max_output_tokens: int = 500,
 ):
-    """Prefer Gemini responses but transparently fall back to OpenAI when needed."""
+    """Call Gemini via Apps Script proxy using GEMINI_API_KEY and GEMINI_APPS_SCRIPT_URL."""
 
     api_key = _get_gemini_api_key()
-    if api_key:
-        try:
-            client = genai.Client(api_key=api_key)
-            response = client.models.generate_content(
-                model="gemini-2.0-flash",
-                contents=f"{system_prompt}\n\n{user_prompt}",
-            )
-            if response and hasattr(response, "text") and response.text:
-                return response.text
-        except Exception as exc:  # noqa: BLE001
-            _debug("gemini.primary_error", str(exc))
-
-    # Silent fallback when Gemini is unavailable (e.g., quota restrictions during hackathons).
-    openai_key = _get_api_key()
-    if not openai_key:
+    appscript_url = os.getenv("GEMINI_APPS_SCRIPT_URL")
+    if not api_key or not appscript_url:
+        _debug("gemini.config_missing", {"has_key": bool(api_key), "has_url": bool(appscript_url)})
         return None
 
+    payload = {
+        "apiKey": api_key,
+        "systemPrompt": system_prompt,
+        "userPrompt": user_prompt,
+        "temperature": temperature,
+        "maxOutputTokens": max_output_tokens,
+    }
+
     try:
-        client = OpenAI(api_key=openai_key)
+        resp = requests.post(appscript_url, json=payload, timeout=25)
+        if not resp.ok:
+            _debug("gemini.appscript_http_error", {"status": resp.status_code, "text": resp.text[:500]})
+            return None
+        data = resp.json() if resp.headers.get("Content-Type", "").startswith("application/json") else {}
+        text = data.get("text") or data.get("reply") or data.get("content")
+        if text:
+            return str(text).strip()
+        # Fallback: if Apps Script returns raw string body
+        if isinstance(resp.text, str) and resp.text.strip():
+            return resp.text.strip()
+        _debug("gemini.appscript_empty", "No text content returned")
+        return None
+    except Exception as exc:  # noqa: BLE001
+        _debug("gemini.appscript_exception", str(exc))
+        return None
+
+
+def _invoke_openai_text(
+    system_prompt: str,
+    user_prompt: str,
+    *,
+    temperature: float = 0.7,
+    max_output_tokens: int = 500,
+):
+    """Call OpenAI chat directly as a fallback when Gemini is unavailable."""
+
+    api_key = _get_api_key()
+    if not api_key:
+        _debug("openai.config_missing", "No OPENAI_API_KEY found")
+        return None
+
+    client = OpenAI(api_key=api_key)
+    try:
         completion = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
@@ -71,10 +101,32 @@ def _invoke_gemini_text(
             temperature=temperature,
             max_tokens=max_output_tokens,
         )
-        return completion.choices[0].message.content if completion.choices else None
+        text = completion.choices[0].message.content if completion.choices else ""
+        return text.strip() if text else None
     except Exception as exc:  # noqa: BLE001
-        _debug("gemini.fallback_error", str(exc))
+        _debug("openai.chat_error", str(exc))
         return None
+
+
+def _invoke_chat_response(system_prompt: str, user_prompt: str, *, temperature: float = 0.7, max_output_tokens: int = 500):
+    """Try Gemini first, then fall back to OpenAI so chat always works when one provider is down."""
+
+    reply = _invoke_gemini_text(
+        system_prompt,
+        user_prompt,
+        temperature=temperature,
+        max_output_tokens=max_output_tokens,
+    )
+    if reply:
+        return reply
+
+    _debug("chat.fallback", "Gemini unavailable; using OpenAI")
+    return _invoke_openai_text(
+        system_prompt,
+        user_prompt,
+        temperature=temperature,
+        max_output_tokens=max_output_tokens,
+    )
 
 
 def _debug(label: str, payload):
@@ -375,7 +427,7 @@ FIR Document Content:
 
     try:
         prompt = f"{system_prompt}{fir_context}\n\nUser message:\n{user_message}"
-        reply = _invoke_gemini_text(
+        reply = _invoke_chat_response(
             system_prompt,
             prompt,
             temperature=0.7,
