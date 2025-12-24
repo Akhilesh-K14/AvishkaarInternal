@@ -116,6 +116,39 @@
     .selection-hint { font-size: 13px; color: #cfefff; opacity: 0.9; text-align: left; }
     svg { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
+    /* Judicial composer */
+    .legal-wrapper { margin-top: 68px; }
+    .legal-shell { position: relative; padding: 26px; border-radius: 22px; background: radial-gradient(circle at 0% 0%, rgba(235,205,96,0.22), transparent 55%), rgba(10,12,20,0.85); border: 1px solid rgba(251,191,36,0.25); box-shadow: 0 30px 80px rgba(0,0,0,0.65), 0 0 0 1px rgba(255,255,255,0.05) inset; overflow: hidden; }
+    .legal-shell::after { content: ''; position: absolute; inset: -30%; background: radial-gradient(circle at 70% 30%, rgba(255,255,255,0.15), transparent 50%); opacity: 0.5; pointer-events: none; }
+    .legal-shell > * { position: relative; z-index: 1; }
+    .legal-meta { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 18px; }
+    .legal-chip { padding: 6px 14px; border-radius: 999px; border: 1px solid rgba(251,191,36,0.4); background: rgba(251,191,36,0.08); font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #fbbf24; }
+    .legal-note { font-size: 13px; color: #f9f1d0; opacity: 0.85; }
+    .legal-grid { display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+    .legal-card { padding: 18px; border-radius: 18px; background: linear-gradient(140deg, rgba(36,47,75,0.85), rgba(15,20,30,0.95)); border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 18px 45px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.05) inset; display: grid; gap: 10px; }
+    .legal-card-head { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
+    .legal-code { font-size: 20px; font-weight: 800; letter-spacing: 0.5px; color: #fbf4d4; }
+    .legal-statute { font-size: 14px; color: #dfe6ff; opacity: 0.9; }
+    .legal-model-badge { padding: 6px 10px; border-radius: 10px; border: 1px solid rgba(138,243,255,0.35); background: rgba(138,243,255,0.08); font-size: 11px; font-weight: 700; letter-spacing: 0.4px; color: #8af3ff; }
+    .legal-summary { font-size: 14px; color: #f7fbff; line-height: 1.55; }
+    .legal-reason-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.4px; color: #fbbf24; }
+    .legal-reason { font-size: 13px; color: #fff4ce; line-height: 1.5; }
+    .legal-stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
+    .legal-stat-item { padding: 10px 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.02); display: grid; gap: 2px; }
+    .legal-stat-item .label { font-size: 11px; color: #9fb5c8; text-transform: uppercase; letter-spacing: 0.3px; }
+    .legal-stat-item .value { font-size: 14px; color: #e1efff; font-weight: 600; }
+    .legal-keywords { display: flex; flex-wrap: wrap; gap: 8px; }
+    .legal-tag { padding: 4px 10px; border-radius: 999px; font-size: 11px; letter-spacing: 0.3px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1); color: #e0f2ff; }
+    .legal-confidence { display: flex; align-items: center; gap: 12px; font-size: 12px; color: #cfefff; }
+    .legal-bar { flex: 1; height: 6px; border-radius: 999px; background: rgba(255,255,255,0.08); overflow: hidden; }
+    .legal-bar-fill { height: 100%; border-radius: 999px; background: linear-gradient(135deg, #fbbf24, #f97316); box-shadow: 0 0 10px rgba(249,115,22,0.6); }
+    .legal-confidence-value { font-size: 12px; color: #fff; font-weight: 600; }
+    .legal-empty { padding: 20px; border-radius: 16px; border: 1px dashed rgba(251,191,36,0.4); background: rgba(251,191,36,0.04); color: #fcdca3; text-align: center; font-size: 14px; }
+    .legal-footnote { margin-top: 18px; font-size: 12px; color: #f6e6b1; opacity: 0.85; text-align: left; }
+    @media (max-width: 720px) {
+      .legal-shell { padding: 20px; }
+    }
+
     /* Roadmap timeline - simplified vertical style */
     .roadmap-wrapper { margin-top: 56px; }
     .roadmap { position: relative; padding: 26px 18px 14px; background: rgba(12, 18, 26, 0.7); border: 1px solid rgba(255,255,255,0.08); border-radius: 18px; backdrop-filter: blur(12px); box-shadow: 0 20px 50px rgba(0,0,0,0.55); overflow: hidden; perspective: 1200px; }
@@ -358,6 +391,86 @@
                 {% endif %}
               </ul>
               <div class="empty-note" id="empty-note" style="display: none;">No questions available.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="legal-wrapper reveal" id="judicial-sections">
+          <div class="section-header" style="margin-bottom: 18px;">
+            <div class="pill">
+              <div class="status-dots"><span></span><span></span><span></span></div>
+              <span>Judicial section composer</span>
+            </div>
+            <div class="section-title">Indian statute matches</div>
+            <div class="section-sub">OPENAI analyses your FIR narrative and surfaces likely IPC / CrPC hooks with rationale.</div>
+          </div>
+
+          <div class="legal-shell">
+            {% set legal_status = legal_audit or {} %}
+            {% set legal_cards = legal_sections if legal_sections is defined else [] %}
+            <div class="legal-meta">
+              <span class="legal-chip">{{ legal_status.status | default('fallback') | replace('_', ' ') | title }}</span>
+              <span class="legal-note">
+                {% if legal_status.model %}Model: {{ legal_status.model }} · {% endif %}
+                {{ legal_status.notes or 'AI suggestions shown for quick reference.' }}
+              </span>
+              <span class="legal-note">
+                {{ legal_status.generated_at or 'Timestamp unavailable' }}
+              </span>
+            </div>
+
+            {% if legal_cards and legal_cards|length > 0 %}
+              <div class="legal-grid">
+                {% for sec in legal_cards %}
+                  {% set conf = sec.confidence if sec.confidence is not none else 0.55 %}
+                  <article class="legal-card" data-source="{{ sec.origin }}">
+                    <header class="legal-card-head">
+                      <div>
+                        <div class="legal-code">{{ sec.code }}</div>
+                        <div class="legal-statute">{{ sec.statute }}</div>
+                      </div>
+                      <span class="legal-model-badge">{{ 'OPENAI' if sec.origin == 'openai' else 'Curated' }}</span>
+                    </header>
+                    <p class="legal-summary">{{ sec.summary }}</p>
+                    <div>
+                      <div class="legal-reason-label">Applicability cue</div>
+                      <p class="legal-reason">{{ sec.reason }}</p>
+                    </div>
+                    <div class="legal-stats-row">
+                      <div class="legal-stat-item">
+                        <span class="label">Bailable?</span>
+                        <span class="value">{{ sec.bailable }}</span>
+                      </div>
+                      <div class="legal-stat-item">
+                        <span class="label">Punishment</span>
+                        <span class="value">{{ sec.punishment }}</span>
+                      </div>
+                    </div>
+                    {% if sec.keywords %}
+                      <div class="legal-keywords">
+                        {% for tag in sec.keywords %}
+                          <span class="legal-tag">{{ tag }}</span>
+                        {% endfor %}
+                      </div>
+                    {% endif %}
+                    <div class="legal-confidence">
+                      <span>Confidence</span>
+                      <div class="legal-bar">
+                        <div class="legal-bar-fill" style="width: {{ (conf * 100) | round(0) }}%;"></div>
+                      </div>
+                      <span class="legal-confidence-value">{{ (conf * 100) | round(0) }}%</span>
+                    </div>
+                  </article>
+                {% endfor %}
+              </div>
+            {% else %}
+              <div class="legal-empty">
+                OPENAI response unavailable right now. Default IPC / CrPC checklist shown until the service resumes.
+              </div>
+            {% endif %}
+
+            <div class="legal-footnote">
+              Indicative references only. Cross-check with supervising officer / APP before framing charges. Cite relevant case facts when applying a section.
             </div>
           </div>
         </div>

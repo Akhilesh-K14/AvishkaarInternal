@@ -338,6 +338,7 @@ def upload():
     character_profiles = extract_character_profiles(formatted_text)
     roadmap_steps = build_roadmap(formatted_text, characters, general_questions)
     locations = extract_locations(formatted_text)
+    legal_sections, legal_audit = build_judicial_sections(formatted_text)
 
     _debug("upload.characters_count", len(characters))
     _debug("upload.general_questions_count", len(general_questions))
@@ -345,6 +346,8 @@ def upload():
     _debug("upload.character_profiles_data", character_profiles)
     _debug("upload.roadmap_steps_count", len(roadmap_steps))
     _debug("upload.locations_count", len(locations))
+    _debug("upload.legal_sections_count", len(legal_sections))
+    _debug("upload.legal_audit", legal_audit)
 
     return render_template(
         "dashboard.html",
@@ -354,6 +357,8 @@ def upload():
         general_questions=general_questions,
         roadmap_steps=roadmap_steps,
         locations=locations,
+        legal_sections=legal_sections,
+        legal_audit=legal_audit,
     )
 
 
@@ -376,6 +381,7 @@ def rescan():
     character_profiles = extract_character_profiles(analysis_text)
     roadmap_steps = build_roadmap(analysis_text, characters, general_questions)
     locations = extract_locations(analysis_text)
+    legal_sections, legal_audit = build_judicial_sections(analysis_text)
 
     _debug("rescan.characters_count", len(characters))
     _debug("rescan.general_questions_count", len(general_questions))
@@ -383,6 +389,8 @@ def rescan():
     _debug("rescan.character_profiles_data", character_profiles)
     _debug("rescan.roadmap_steps_count", len(roadmap_steps))
     _debug("rescan.locations_count", len(locations))
+    _debug("rescan.legal_sections_count", len(legal_sections))
+    _debug("rescan.legal_audit", legal_audit)
 
     return render_template(
         "dashboard.html",
@@ -393,6 +401,8 @@ def rescan():
         general_questions=general_questions,
         roadmap_steps=roadmap_steps,
         locations=locations,
+        legal_sections=legal_sections,
+        legal_audit=legal_audit,
     )
 
 
@@ -610,6 +620,131 @@ def build_questions(extracted_text: str):
         return normalized_chars, general
     except Exception:
         return [], default_general
+
+
+def build_judicial_sections(extracted_text: str):
+    """Ask OpenAI for matching IPC/CrPC sections and fall back to curated suggestions."""
+
+    fallback = [
+        {
+            "code": "IPC 154",
+            "statute": "Information in cognizable cases",
+            "summary": "Ensures FIR registration when cognizable offences are alleged, safeguarding complainant rights.",
+            "reason": "Always cite to validate that the FIR is procedurally compliant before downstream action.",
+            "bailable": "Not applicable",
+            "punishment": "Sets duty for police officers; no direct punishment but non-compliance invites departmental action.",
+            "confidence": 0.38,
+            "origin": "fallback",
+        },
+        {
+            "code": "IPC 420",
+            "statute": "Cheating and dishonestly inducing delivery of property",
+            "summary": "Covers deceitful acts where victims are induced to hand over money, valuables, or signatures.",
+            "reason": "Trigger when FIR narrates misrepresentation, forged promises, or siphoning of funds.",
+            "bailable": "Non-bailable",
+            "punishment": "Up to 7 years imprisonment and fine.",
+            "confidence": 0.41,
+            "origin": "fallback",
+        },
+        {
+            "code": "CrPC 41",
+            "statute": "When police may arrest without warrant",
+            "summary": "Guides lawful arrest only when necessity criteria are met, protecting Article 21 rights.",
+            "reason": "Remind IOs to document reasons for custodial steps cited inside the FIR narrative.",
+            "bailable": "Context dependent",
+            "punishment": "Procedural safeguard; non-compliance invites judicial scrutiny.",
+            "confidence": 0.33,
+            "origin": "fallback",
+        },
+    ]
+
+    audit = {
+        "status": "fallback",
+        "model": None,
+        "notes": "Showing curated starter sections.",
+        "generated_at": datetime.utcnow().isoformat() + "Z",
+    }
+
+    if not extracted_text:
+        audit["notes"] = "No FIR text provided; showing curated starter sections."
+        return fallback, audit
+
+    api_key = _get_api_key()
+    if not api_key:
+        audit["notes"] = "OPENAI_API_KEY missing; using curated fallback list."
+        return fallback, audit
+
+    client = OpenAI(api_key=api_key)
+    system_msg = (
+        "You are a senior Indian criminal-law researcher. Given an FIR narrative, identify the top Indian statutes "
+        "(IPC, CrPC, IT Act, Evidence Act, etc.) that plausibly apply. Respond ONLY in JSON with key 'sections' as an array. "
+        "Each item must include: code (e.g., 'IPC 420'), statute (short title), summary (1-2 lines), reason (why it matches), "
+        "bailable (Yes/No/Depends), punishment (max penalty), confidence (0-1 float), and optional keywords (array). "
+        "Limit to 3-5 items ordered by relevance."
+    )
+    user_msg = (
+        "FIR text:\n" + extracted_text + "\n"
+        "Focus on actual legal applicability; prefer IPC/CrPC sections unless specialised laws are explicitly indicated."
+    )
+
+    try:
+        completion = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": system_msg},
+                {"role": "user", "content": user_msg},
+            ],
+            temperature=0.25,
+            max_tokens=500,
+            response_format={"type": "json_object"},
+        )
+
+        raw_content = completion.choices[0].message.content if completion.choices else ""
+        data = json.loads(raw_content) if raw_content else {}
+        sections_raw = data.get("sections") or []
+
+        sections = []
+        for item in sections_raw:
+            code = (item or {}).get("code")
+            statute = (item or {}).get("statute") or (item or {}).get("title")
+            summary = (item or {}).get("summary")
+            reason = (item or {}).get("reason")
+            bailable = (item or {}).get("bailable") or "Depends"
+            punishment = (item or {}).get("punishment") or "As per statute"
+            confidence = (item or {}).get("confidence")
+            keywords = (item or {}).get("keywords") or []
+            if code and statute and summary:
+                try:
+                    conf_value = float(confidence) if confidence is not None else None
+                except (TypeError, ValueError):
+                    conf_value = None
+                sections.append(
+                    {
+                        "code": str(code).strip(),
+                        "statute": str(statute).strip(),
+                        "summary": str(summary).strip(),
+                        "reason": str(reason).strip() if reason else "LLM rationale unavailable.",
+                        "bailable": str(bailable).strip(),
+                        "punishment": str(punishment).strip(),
+                        "confidence": conf_value,
+                        "keywords": [str(k).strip() for k in keywords if k],
+                        "origin": "openai",
+                    }
+                )
+
+        if sections:
+            audit = {
+                "status": "llm",
+                "model": "gpt-4o-mini",
+                "notes": data.get("disclaimer") or "Generated via OpenAI using FIR narrative.",
+                "generated_at": datetime.utcnow().isoformat() + "Z",
+            }
+            return sections, audit
+    except Exception as exc:  # noqa: BLE001
+        _debug("legal_sections.error", str(exc))
+
+    audit["notes"] = "OpenAI response unavailable; using curated fallback list."
+    return fallback, audit
 
 
 def extract_locations(extracted_text: str):
