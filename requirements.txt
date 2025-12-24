@@ -1,7 +1,6 @@
 flask
 flask-cors
 python-dotenv
-opencv-python
 pytesseract
 numpy
 openai
