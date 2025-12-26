@@ -223,8 +223,15 @@
     .audio-lab { margin: 80px auto 48px; max-width: 1200px; position: relative; }
     .audio-lab::before { content: ''; position: absolute; inset: -18px; background: radial-gradient(circle at 16% 20%, rgba(138,243,255,0.22), transparent 55%), radial-gradient(circle at 82% 60%, rgba(94,210,255,0.18), transparent 60%); filter: blur(20px); opacity: 0.6; z-index: 0; }
     .audio-section-heading { position: relative; z-index: 1; margin-bottom: 18px; }
-    .audio-shell-hero { position: relative; z-index: 1; padding: 22px; border-radius: 20px; background: linear-gradient(145deg, rgba(10,18,28,0.94), rgba(6,10,16,0.95)); border: 1px solid rgba(138,243,255,0.25); box-shadow: 0 26px 70px rgba(0,0,0,0.65), 0 0 0 1px rgba(255,255,255,0.05) inset; overflow: hidden; }
-    .audio-shell-hero::after { content: ''; position: absolute; inset: -30%; background: radial-gradient(circle at 65% 40%, rgba(138,243,255,0.12), transparent 55%), radial-gradient(circle at 25% 70%, rgba(255,255,255,0.08), transparent 60%); opacity: 0.7; pointer-events: none; }
+    .audio-shell-hero { position: relative; z-index: 1; padding: 22px; border-radius: 20px; background: linear-gradient(145deg, rgba(10,18,28,0.94), rgba(6,10,16,0.95)); border: 1px solid rgba(138,243,255,0.25); box-shadow: 0 26px 70px rgba(0,0,0,0.65), 0 0 0 1px rgba(255,255,255,0.05) inset; overflow: hidden; backdrop-filter: blur(8px); }
+    .audio-shell-hero::after { content: ''; position: absolute; inset: -30%; background: radial-gradient(circle at 65% 40%, rgba(138,243,255,0.12), transparent 55%), radial-gradient(circle at 25% 70%, rgba(255,255,255,0.08), transparent 60%); opacity: 0.7; pointer-events: none; animation: aurora 14s ease-in-out infinite alternate; }
+    .audio-aurora { position: absolute; inset: -20% -10%; background: conic-gradient(from 120deg, rgba(98,226,255,0.12), rgba(255,255,255,0.04), rgba(15,198,255,0.16), rgba(255,255,255,0.06)); filter: blur(48px); opacity: 0.9; mix-blend-mode: screen; pointer-events: none; animation: aurora 18s ease-in-out infinite alternate; }
+    .audio-lines { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+    .audio-lines::before, .audio-lines::after { content: ''; position: absolute; inset: -10%; background: radial-gradient(circle at 30% 30%, rgba(138,243,255,0.12), transparent 40%), radial-gradient(circle at 70% 60%, rgba(255,255,255,0.06), transparent 45%); opacity: 0.4; filter: blur(6px); }
+    .audio-lines span { position: absolute; width: 140%; height: 1px; background: linear-gradient(90deg, transparent, rgba(138,243,255,0.6), transparent); opacity: 0.4; animation: pulseLine 6s ease-in-out infinite; }
+    .audio-lines span:nth-child(1) { top: 20%; animation-delay: 0s; }
+    .audio-lines span:nth-child(2) { top: 50%; animation-delay: 1.2s; }
+    .audio-lines span:nth-child(3) { top: 80%; animation-delay: 2.1s; }
     .audio-head { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; margin-bottom: 14px; }
     .audio-title { font-size: clamp(22px, 4vw, 30px); font-weight: 800; letter-spacing: -0.2px; }
     .audio-pill { display: inline-flex; gap: 8px; align-items: center; padding: 10px 14px; background: rgba(138,243,255,0.08); border: 1px solid rgba(138,243,255,0.35); border-radius: 999px; font-size: 12px; font-weight: 800; letter-spacing: 0.4px; text-transform: uppercase; color: #c7f3ff; }
@@ -237,29 +244,38 @@
     .audio-button:hover { transform: translateY(-2px); box-shadow: 0 16px 40px rgba(94,210,255,0.45); }
     .audio-hint { font-size: 13px; color: #cfefff; opacity: 0.9; margin: 6px 0 10px; }
     .audio-grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); position: relative; z-index: 2; }
-    .audio-card { padding: 16px; border-radius: 16px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); backdrop-filter: blur(12px); box-shadow: 0 18px 50px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.05) inset; display: grid; gap: 10px; }
+    .audio-grid.show .audio-card { animation: floatIn 0.65s ease both; }
+    .audio-grid.show .audio-card:nth-child(1) { animation-delay: 0.05s; }
+    .audio-grid.show .audio-card:nth-child(2) { animation-delay: 0.1s; }
+    .audio-grid.show .audio-card:nth-child(3) { animation-delay: 0.15s; }
+    .audio-grid.show .audio-card:nth-child(4) { animation-delay: 0.2s; }
+    .audio-card { padding: 16px; border-radius: 16px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); backdrop-filter: blur(12px); box-shadow: 0 18px 50px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.05) inset; display: grid; gap: 10px; position: relative; overflow: hidden; }
+    .audio-card::before { content: ''; position: absolute; inset: -40%; background: radial-gradient(circle at 30% 20%, rgba(138,243,255,0.08), transparent 50%), radial-gradient(circle at 80% 80%, rgba(255,255,255,0.05), transparent 55%); opacity: 0.6; pointer-events: none; filter: blur(6px); animation: shimmer 8s linear infinite; }
     .audio-card h4 { margin: 0; font-size: 15px; letter-spacing: 0.3px; text-transform: uppercase; color: #cfefff; }
     .audio-list { margin: 0; padding-left: 16px; display: grid; gap: 6px; color: #f7fbff; font-size: 14px; }
     .audio-badge { display: inline-flex; gap: 6px; align-items: center; padding: 6px 10px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.16); border-radius: 999px; font-size: 12px; font-weight: 700; letter-spacing: 0.3px; width: fit-content; }
     .audio-sentiment { text-transform: capitalize; }
-    .signal-bar { height: 10px; border-radius: 999px; background: rgba(255,255,255,0.08); overflow: hidden; position: relative; }
-    .signal-fill { height: 100%; width: 0%; background: linear-gradient(135deg, #22d3ee, #0ea5e9); box-shadow: 0 0 12px rgba(14,165,233,0.6); transition: width 0.3s ease; }
+    .signal-bar { height: 10px; border-radius: 999px; background: rgba(255,255,255,0.08); overflow: hidden; position: relative; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05); }
+    .signal-bar::after { content: ''; position: absolute; inset: -40% -10%; background: radial-gradient(circle at 20% 50%, rgba(94,210,255,0.18), transparent 50%), radial-gradient(circle at 70% 50%, rgba(255,255,255,0.14), transparent 55%); opacity: 0.4; pointer-events: none; filter: blur(14px); }
+    .signal-fill { height: 100%; width: 0%; background: linear-gradient(135deg, #22d3ee, #0ea5e9, #22d3ee); box-shadow: 0 0 14px rgba(14,165,233,0.8); transition: width 0.55s cubic-bezier(0.23, 1, 0.32, 1); animation: signalPulse 2.6s ease-in-out infinite; }
     .chart-3d { position: relative; height: 160px; perspective: 900px; display: grid; grid-auto-flow: column; gap: 14px; align-items: end; }
     .chart-bar { position: relative; width: 64px; border-radius: 12px; background: linear-gradient(145deg, rgba(138,243,255,0.28), rgba(94,210,255,0.16)); border: 1px solid rgba(138,243,255,0.32); box-shadow: 0 18px 36px rgba(0,0,0,0.45), inset 0 0 0 1px rgba(255,255,255,0.04); display: flex; align-items: flex-end; justify-content: center; padding-bottom: 12px; transition: transform 0.35s ease, box-shadow 0.35s ease; }
     .chart-bar span { position: absolute; bottom: -22px; left: 50%; transform: translateX(-50%); font-size: 11px; color: #d4f1ff; white-space: nowrap; }
     .chart-bar:hover { transform: translateY(-4px); box-shadow: 0 22px 44px rgba(0,0,0,0.5), 0 0 0 1px rgba(138,243,255,0.45) inset; }
-    .sentiment-graph { width: 100%; min-height: 140px; border-radius: 14px; border: 1px solid rgba(138,243,255,0.28); background: linear-gradient(90deg, rgba(10,18,28,0.9), rgba(12,20,32,0.92)); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04), 0 18px 46px rgba(0,0,0,0.45); padding: 14px 16px; display: grid; gap: 12px; }
-    .truth-track { display: flex; gap: 6px; width: 100%; height: 82px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.03); overflow: hidden; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04); }
-    .truth-segment { position: relative; display: flex; align-items: center; justify-content: center; color: #0b1720; font-weight: 800; font-size: 13px; letter-spacing: 0.2px; cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease; }
-    .truth-segment.truthful { background: linear-gradient(135deg, #34d399, #10b981); }
-    .truth-segment.uncertain { background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #111; }
-    .truth-segment.lying { background: linear-gradient(135deg, #f87171, #ef4444); }
+    .sentiment-graph { position: relative; width: 100%; min-height: 170px; border-radius: 14px; border: 1px solid rgba(138,243,255,0.28); background: linear-gradient(120deg, rgba(10,18,28,0.9), rgba(12,20,32,0.92)); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04), 0 18px 46px rgba(0,0,0,0.45); padding: 14px 16px; display: grid; gap: 12px; overflow: hidden; }
+    .sentiment-graph::before { content: ''; position: absolute; inset: -40%; background: radial-gradient(circle at 20% 30%, rgba(138,243,255,0.14), transparent 45%), radial-gradient(circle at 80% 70%, rgba(255,255,255,0.08), transparent 55%); opacity: 0.35; pointer-events: none; animation: shimmer 10s linear infinite; }
+    .truth-track { position: relative; display: flex; gap: 6px; width: 100%; height: 96px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.03); overflow: hidden; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04); }
+    .truth-track::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(255,255,255,0.08), transparent 35%, transparent 65%, rgba(255,255,255,0.08)); mix-blend-mode: soft-light; opacity: 0.35; pointer-events: none; }
+    .truth-segment { position: relative; display: flex; align-items: center; justify-content: center; color: #0b1720; font-weight: 800; font-size: 13px; letter-spacing: 0.2px; cursor: pointer; transition: transform 0.28s ease, box-shadow 0.28s ease, opacity 0.28s ease, width 0.4s ease; background-size: 200% 200%; animation: slideHue 6s ease-in-out infinite; }
+    .truth-segment.truthful { background-image: linear-gradient(135deg, #34d399, #10b981); }
+    .truth-segment.uncertain { background-image: linear-gradient(135deg, #fbbf24, #f59e0b); color: #111; }
+    .truth-segment.lying { background-image: linear-gradient(135deg, #f87171, #ef4444); }
     .truth-segment:hover { transform: translateY(-3px); box-shadow: 0 16px 30px rgba(0,0,0,0.45); }
-    .truth-segment.active { outline: 2px solid rgba(255,255,255,0.4); outline-offset: -2px; }
-    .sentiment-legend { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 2px; }
-    .sentiment-chip { padding: 8px 10px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.05); color: #dbefff; font-size: 12px; cursor: pointer; transition: border-color 0.2s ease, transform 0.2s ease; }
-    .sentiment-chip.active { border-color: rgba(138,243,255,0.65); color: #fff; }
-    .sentiment-chip:hover { transform: translateY(-2px); }
+    .truth-segment.active { outline: 2px solid rgba(255,255,255,0.4); outline-offset: -2px; box-shadow: 0 18px 36px rgba(0,0,0,0.5); }
+    .sentiment-legend { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 2px; position: relative; z-index: 2; }
+    .sentiment-chip { padding: 8px 10px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.05); color: #dbefff; font-size: 12px; cursor: pointer; transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease; box-shadow: 0 10px 24px rgba(0,0,0,0.35); }
+    .sentiment-chip.active { border-color: rgba(138,243,255,0.65); color: #fff; box-shadow: 0 12px 30px rgba(138,243,255,0.25); }
+    .sentiment-chip:hover { transform: translateY(-2px) scale(1.01); }
     .bar-3d { position: relative; width: 46px; transform-style: preserve-3d; animation: barFloat 3s ease-in-out infinite; }
     .bar-3d .face { position: absolute; inset: 0; border-radius: 8px; background: linear-gradient(135deg, rgba(138,243,255,0.35), rgba(94,210,255,0.18)); border: 1px solid rgba(138,243,255,0.35); box-shadow: 0 12px 26px rgba(0,0,0,0.4); }
     .bar-3d .top { transform: translateZ(12px); filter: brightness(1.08); }
@@ -270,6 +286,27 @@
     .audio-loading.visible { display: inline-flex; }
     .dot-pulse { width: 8px; height: 8px; border-radius: 50%; background: #8af3ff; animation: blink 1.2s ease-in-out infinite; box-shadow: 0 0 10px rgba(138,243,255,0.7); }
     .audio-empty { padding: 12px; border-radius: 14px; border: 1px dashed rgba(255,255,255,0.18); background: rgba(255,255,255,0.04); color: #dbefff; font-size: 13px; text-align: center; }
+
+    /* Dynamic audio viz + verdict chip */
+    .audio-verdict-chip { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.12); background: linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02)); color: #e9fbff; font-weight: 800; letter-spacing: 0.2px; text-transform: uppercase; box-shadow: 0 12px 30px rgba(0,0,0,0.45); width: fit-content; transition: transform 0.3s ease, box-shadow 0.3s ease; }
+    .audio-verdict-chip.truthful { border-color: rgba(52,211,153,0.6); color: #d1fff0; box-shadow: 0 14px 32px rgba(52,211,153,0.35); }
+    .audio-verdict-chip.uncertain { border-color: rgba(251,191,36,0.6); color: #fff6d6; box-shadow: 0 14px 32px rgba(251,191,36,0.35); }
+    .audio-verdict-chip.lying { border-color: rgba(248,113,113,0.6); color: #ffe2e2; box-shadow: 0 14px 32px rgba(248,113,113,0.35); }
+    .audio-verdict-chip .pulse-dot { width: 10px; height: 10px; border-radius: 50%; background: currentColor; box-shadow: 0 0 12px currentColor; animation: glowPulse 1.4s ease-in-out infinite; }
+
+    .audio-wave-bars { position: relative; display: grid; grid-auto-flow: column; gap: 6px; align-items: end; width: 100%; height: 96px; padding: 12px 2px 4px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.08); background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02)); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04); overflow: hidden; }
+    .audio-wave-bars::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(255,255,255,0.06), transparent 35%, transparent 65%, rgba(255,255,255,0.06)); opacity: 0.35; pointer-events: none; }
+    .wave-bar { position: relative; width: 12px; height: 60px; border-radius: 8px; background: linear-gradient(135deg, rgba(138,243,255,0.22), rgba(94,210,255,0.18)); border: 1px solid rgba(138,243,255,0.35); box-shadow: 0 12px 26px rgba(0,0,0,0.4); transform-origin: bottom; transform: scaleY(0.2); animation: waveRise 2s ease-in-out infinite; animation-delay: calc(var(--i) * 0.08s); }
+    .wave-bar::after { content: ''; position: absolute; inset: 0; border-radius: 8px; background: linear-gradient(135deg, rgba(255,255,255,0.25), transparent); opacity: 0.5; }
+
+    @keyframes aurora { 0% { transform: translate3d(-4%, -2%, 0) rotate(0deg); } 50% { transform: translate3d(4%, 3%, 0) rotate(2deg); } 100% { transform: translate3d(-3%, 2%, 0) rotate(-2deg); } }
+    @keyframes pulseLine { 0%, 100% { transform: translateX(-10%); opacity: 0.25; } 50% { transform: translateX(10%); opacity: 0.6; } }
+    @keyframes shimmer { 0% { transform: translateX(-10%); } 100% { transform: translateX(10%); } }
+    @keyframes glowPulse { 0%, 100% { transform: scale(0.9); opacity: 0.8; } 50% { transform: scale(1.1); opacity: 1; } }
+    @keyframes slideHue { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+    @keyframes signalPulse { 0%, 100% { filter: drop-shadow(0 0 0 rgba(14,165,233,0.3)); } 50% { filter: drop-shadow(0 0 8px rgba(14,165,233,0.8)); } }
+    @keyframes waveRise { 0% { transform: scaleY(0.25); opacity: 0.8; } 50% { transform: scaleY(var(--h, 0.8)); opacity: 1; } 100% { transform: scaleY(0.25); opacity: 0.8; } }
+    @keyframes floatIn { from { opacity: 0; transform: translateY(24px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
     .chat-input-area { padding: 16px; border-top: 1px solid rgba(255,255,255,0.08); display: flex; gap: 12px; background: rgba(255,255,255,0.02); }
     .chat-input { flex: 1; padding: 12px 16px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.06); color: #fff; font-size: 14px; outline: none; transition: border-color 0.2s, box-shadow 0.2s; }
     .chat-input:focus { border-color: rgba(138,243,255,0.45); box-shadow: 0 0 0 3px rgba(138,243,255,0.15); }
@@ -619,6 +656,8 @@
         </div>
 
         <div class="audio-shell-hero">
+          <div class="audio-aurora"></div>
+          <div class="audio-lines"><span></span><span></span><span></span></div>
           <div class="audio-head">
             <div>
               <div class="audio-meta-row" style="margin-top:0;">
@@ -662,9 +701,11 @@
             </div>
             <div class="audio-card" style="grid-column: 1 / -1;">
               <h4>Sentiment & Truthfulness</h4>
+              <div class="audio-verdict-chip" id="audio-verdict-chip"><span class="pulse-dot"></span><span class="verdict-text">Verdict —</span></div>
               <div class="audio-badge">Sentiment: <span class="audio-sentiment" id="audio-sentiment">—</span></div>
               <div class="section-sub" id="audio-verdict-reason" style="margin-top:4px;">—</div>
               <div class="sentiment-graph" id="sentiment-graph"></div>
+              <div class="audio-wave-bars" id="audio-wave-bars"></div>
               <div class="section-sub" style="margin-top:6px;">Truthfulness signal</div>
               <div class="signal-bar"><div class="signal-fill" id="audio-signal"></div></div>
               <div class="sentiment-legend" id="sentiment-legend"></div>
@@ -1095,6 +1136,8 @@
     const audioSignal = document.getElementById('audio-signal');
     const sentimentGraph = document.getElementById('sentiment-graph');
     const sentimentLegend = document.getElementById('sentiment-legend');
+    const audioWaveBars = document.getElementById('audio-wave-bars');
+    const audioVerdictChip = document.getElementById('audio-verdict-chip');
     const audioEmpty = document.getElementById('audio-empty');
 
     const characterDeck = {{ character_questions | default([]) | tojson }} || [];
@@ -1196,6 +1239,37 @@
       sentimentGraph.appendChild(signalRow);
     };
 
+    const ensureWaveBars = () => {
+      if (!audioWaveBars) return;
+      if (audioWaveBars.childElementCount > 0) return;
+      const bars = 14;
+      for (let i = 0; i < bars; i += 1) {
+        const bar = document.createElement('div');
+        bar.className = 'wave-bar';
+        bar.style.setProperty('--i', i.toString());
+        audioWaveBars.appendChild(bar);
+      }
+    };
+
+    let waveTimer = null;
+    const animateWaveBars = (signal = 0.5) => {
+      if (!audioWaveBars) return;
+      ensureWaveBars();
+      const bars = Array.from(audioWaveBars.querySelectorAll('.wave-bar'));
+      const clamped = Math.min(1, Math.max(0, Number(signal) || 0));
+      const setHeights = () => {
+        const base = 0.35 + clamped * 0.9;
+        bars.forEach((bar, idx) => {
+          const flicker = 0.35 + 0.4 * Math.sin((Date.now() / 620) + idx * 0.45);
+          const height = Math.max(0.4, Math.min(1.2, base + flicker * 0.25));
+          bar.style.setProperty('--h', height.toFixed(2));
+        });
+      };
+      setHeights();
+      if (waveTimer) clearInterval(waveTimer);
+      waveTimer = setInterval(setHeights, 900);
+    };
+
     const setAudioLoading = (isLoading) => {
       if (audioLoading) audioLoading.style.display = isLoading ? 'flex' : 'none';
       if (audioSubmit) audioSubmit.disabled = isLoading;
@@ -1234,11 +1308,20 @@
           const verdict = insights.verdict || insights.sentiment || 'uncertain';
           if (audioSentiment) audioSentiment.textContent = verdict;
           if (audioVerdictReason) audioVerdictReason.textContent = insights.verdict_reason || 'Based on detected contradictions vs FIR context.';
+          if (audioVerdictChip) {
+            audioVerdictChip.className = `audio-verdict-chip ${verdict}`;
+            const textEl = audioVerdictChip.querySelector('.verdict-text');
+            if (textEl) textEl.textContent = `Verdict: ${verdict}`;
+          }
           const signal = Number.isFinite(insights.signal) ? insights.signal : 0.5;
           if (audioSignal) audioSignal.style.width = `${Math.round(Math.min(1, Math.max(0, signal)) * 100)}%`;
           renderSentimentGraph(verdict, signal);
+          animateWaveBars(signal);
 
-          if (audioResults) audioResults.style.display = 'grid';
+          if (audioResults) {
+            audioResults.style.display = 'grid';
+            audioResults.classList.add('show');
+          }
           if (audioEmpty) audioEmpty.style.display = 'none';
         } catch (err) {
           alert(err.message || 'Unable to analyze audio right now.');

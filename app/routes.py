@@ -571,7 +571,11 @@ def analyze_audio():
         if err or not transcript:
             return jsonify({"error": f"Transcription failed: {err or 'no text'}"}), 500
 
+        # Debug visibility: show transcript snippet for troubleshooting verdict issues
+        _debug("audio.transcript_text", (transcript or "")[:800])
+
         insights = _analyze_audio_insights(transcript, character, fir_context) or {}
+        _debug("audio.insights_raw", insights)
         payload = {
             "transcript": transcript,
             "insights": insights,
