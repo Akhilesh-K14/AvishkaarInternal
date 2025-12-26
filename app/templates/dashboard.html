@@ -198,12 +198,26 @@
     .chatbot-robot spline-viewer { width: 100%; height: calc(100% + 50px); min-height: 510px; display: block; position: relative; top: 0; margin-bottom: -50px; }
     .chat-panel { display: flex; flex-direction: column; border-radius: 16px; background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.03)); border: 1px solid rgba(255,255,255,0.08); backdrop-filter: blur(12px); box-shadow: 0 18px 50px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.05) inset; overflow: hidden; min-height: 460px; height: 520px; }
     .chat-messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; max-height: 360px; }
-    .chat-message { padding: 12px 16px; border-radius: 14px; max-width: 88%; animation: fadeIn 0.3s ease; box-shadow: 0 10px 28px rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.06); }
+    .chat-message { padding: 12px 16px; border-radius: 14px; max-width: 88%; animation: fadeIn 0.3s ease; box-shadow: 0 10px 28px rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.06); text-align: left; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     .chat-message.bot { background: linear-gradient(135deg, rgba(138,243,255,0.22), rgba(110,212,255,0.14)); border-color: rgba(138,243,255,0.35); align-self: flex-start; }
     .chat-message.user { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.12); align-self: flex-end; }
-    .chat-message .sender { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #8fb5d5; margin-bottom: 4px; }
-    .chat-message .text { font-size: 14px; line-height: 1.5; color: #f0f8ff; }
+    .chat-message .sender { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #8fb5d5; margin-bottom: 4px; text-align: left; }
+    .chat-message .text { font-size: 14px; line-height: 1.6; color: #f0f8ff; text-align: left; word-break: break-word; }
+    .chat-message .text p { margin: 4px 0; }
+    .chat-message .text ul, .chat-message .text ol { margin: 6px 0 6px 0; padding-left: 18px; }
+    .chat-message .text li { margin: 4px 0; }
+    .audio-row { margin-top: 12px; }
+    .audio-shell { display: grid; gap: 8px; padding: 12px 14px; border-radius: 14px; background: radial-gradient(circle at 20% 20%, rgba(138,243,255,0.16), transparent 52%), rgba(6,14,22,0.9); border: 1px solid rgba(138,243,255,0.35); box-shadow: 0 14px 32px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,255,255,0.04) inset; }
+    .audio-label { display: inline-flex; gap: 6px; align-items: center; font-size: 12px; font-weight: 700; letter-spacing: 0.3px; color: #c7f3ff; background: rgba(255,255,255,0.06); padding: 6px 10px; border-radius: 10px; width: fit-content; border: 1px solid rgba(138,243,255,0.35); box-shadow: 0 8px 18px rgba(0,0,0,0.25); }
+    .audio-dot { width: 8px; height: 8px; border-radius: 50%; background: linear-gradient(135deg, #0ea5e9, #67e8f9); box-shadow: 0 0 10px rgba(14,165,233,0.8); }
+    .audio-player { display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center; padding: 10px 12px; border-radius: 12px; background: linear-gradient(135deg, rgba(14,22,32,0.95), rgba(10,18,28,0.9)); border: 1px solid rgba(255,255,255,0.08); box-shadow: inset 0 0 0 1px rgba(138,243,255,0.08); }
+    .audio-play-btn { width: 42px; height: 42px; border-radius: 12px; border: 1px solid rgba(138,243,255,0.45); background: linear-gradient(135deg, rgba(138,243,255,0.18), rgba(110,212,255,0.14)); color: #e8faff; font-weight: 900; font-size: 16px; cursor: pointer; box-shadow: 0 12px 24px rgba(0,0,0,0.35); transition: transform 0.15s ease, box-shadow 0.15s ease; }
+    .audio-play-btn:hover { transform: translateY(-1px); box-shadow: 0 16px 32px rgba(0,0,0,0.4); }
+    .audio-progress { position: relative; height: 8px; border-radius: 999px; background: rgba(255,255,255,0.08); overflow: hidden; cursor: pointer; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06); }
+    .audio-progress-inner { position: absolute; top: 0; left: 0; height: 100%; width: 0%; border-radius: 999px; background: linear-gradient(135deg, #8af3ff, #5ed2ff); box-shadow: 0 0 10px rgba(138,243,255,0.4); transition: width 0.08s linear; }
+    .audio-time { font-size: 12px; color: #cfefff; font-weight: 700; min-width: 64px; text-align: right; letter-spacing: 0.2px; }
+    .hidden-audio { display: none; }
     .chat-input-area { padding: 16px; border-top: 1px solid rgba(255,255,255,0.08); display: flex; gap: 12px; background: rgba(255,255,255,0.02); }
     .chat-input { flex: 1; padding: 12px 16px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.06); color: #fff; font-size: 14px; outline: none; transition: border-color 0.2s, box-shadow 0.2s; }
     .chat-input:focus { border-color: rgba(138,243,255,0.45); box-shadow: 0 0 0 3px rgba(138,243,255,0.15); }
@@ -962,7 +976,7 @@
         .replace(/>/g, '&gt;');
     };
 
-    const addMessage = (text, isUser = false) => {
+    const addMessage = (text, isUser = false, audioData = null, mime = 'audio/mpeg') => {
       if (!chatMessages) return;
       const messageText = text || '';
       const msg = document.createElement('div');
@@ -982,6 +996,104 @@
 
       msg.appendChild(sender);
       msg.appendChild(body);
+
+      if (!isUser && audioData) {
+        const audioRow = document.createElement('div');
+        audioRow.className = 'audio-row';
+
+        const shell = document.createElement('div');
+        shell.className = 'audio-shell';
+
+        const label = document.createElement('div');
+        label.className = 'audio-label';
+        const dot = document.createElement('span');
+        dot.className = 'audio-dot';
+        const labelText = document.createElement('span');
+        labelText.textContent = 'Audio reply';
+        label.appendChild(dot);
+        label.appendChild(labelText);
+
+        const audioEl = new Audio();
+        audioEl.className = 'hidden-audio';
+        audioEl.preload = 'metadata';
+        const safeMime = mime || 'audio/mpeg';
+        audioEl.src = `data:${safeMime};base64,${audioData}`;
+
+        const player = document.createElement('div');
+        player.className = 'audio-player';
+
+        const playBtn = document.createElement('button');
+        playBtn.className = 'audio-play-btn';
+        playBtn.type = 'button';
+        playBtn.textContent = '▶';
+
+        const progressOuter = document.createElement('div');
+        progressOuter.className = 'audio-progress';
+        const progressInner = document.createElement('div');
+        progressInner.className = 'audio-progress-inner';
+        progressOuter.appendChild(progressInner);
+
+        const timeEl = document.createElement('div');
+        timeEl.className = 'audio-time';
+        timeEl.textContent = '0:00';
+
+        const fmtTime = (sec) => {
+          if (!Number.isFinite(sec)) return '0:00';
+          const m = Math.floor(sec / 60);
+          const s = Math.floor(sec % 60)
+            .toString()
+            .padStart(2, '0');
+          return `${m}:${s}`;
+        };
+
+        const updateProgress = () => {
+          const cur = audioEl.currentTime || 0;
+          const dur = audioEl.duration || 0;
+          const pct = dur ? Math.min(100, (cur / dur) * 100) : 0;
+          progressInner.style.width = `${pct}%`;
+          timeEl.textContent = `${fmtTime(cur)}${dur ? ` / ${fmtTime(dur)}` : ''}`;
+        };
+
+        playBtn.addEventListener('click', () => {
+          if (audioEl.paused) {
+            audioEl.play().catch(() => {});
+          } else {
+            audioEl.pause();
+          }
+        });
+
+        audioEl.addEventListener('play', () => {
+          playBtn.textContent = '❚❚';
+        });
+        audioEl.addEventListener('pause', () => {
+          playBtn.textContent = '▶';
+        });
+        audioEl.addEventListener('ended', () => {
+          playBtn.textContent = '▶';
+          progressInner.style.width = '0%';
+        });
+        audioEl.addEventListener('timeupdate', updateProgress);
+        audioEl.addEventListener('loadedmetadata', updateProgress);
+
+        progressOuter.addEventListener('click', (e) => {
+          const rect = progressOuter.getBoundingClientRect();
+          const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+          if (Number.isFinite(audioEl.duration)) {
+            audioEl.currentTime = ratio * audioEl.duration;
+          }
+        });
+
+        player.appendChild(playBtn);
+        player.appendChild(progressOuter);
+        player.appendChild(timeEl);
+
+        shell.appendChild(label);
+        shell.appendChild(player);
+        shell.appendChild(audioEl);
+        audioRow.appendChild(shell);
+        msg.appendChild(audioRow);
+      }
+
       chatMessages.appendChild(msg);
       chatMessages.scrollTop = chatMessages.scrollHeight;
     };
@@ -1035,7 +1147,7 @@
 
         if (res.ok) {
           const data = await res.json();
-          addMessage(data.reply || 'I apologize, I could not process that request.');
+          addMessage(data.reply || 'I apologize, I could not process that request.', false, data.audio, data.mime);
         } else {
           addMessage('Sorry, there was an error processing your request. Please try again.');
         }

@@ -1,3 +1,4 @@
+import base64
 import io
 import json
 import os
@@ -127,6 +128,38 @@ def _invoke_chat_response(system_prompt: str, user_prompt: str, *, temperature: 
         temperature=temperature,
         max_output_tokens=max_output_tokens,
     )
+
+
+def _synthesize_speech(text: str, *, voice: str = "alloy", audio_format: str = "mp3"):
+    """Return (base64_audio, mime) for a short reply using OpenAI TTS; gracefully fallback on failure."""
+
+    api_key = _get_api_key()
+    if not api_key or not text:
+        _debug("tts.skipped", {"has_key": bool(api_key), "has_text": bool(text)})
+        return None, None
+
+    # Keep payload small to respect API limits and response size for the browser.
+    trimmed = text.strip()
+    max_chars = 1800
+    if len(trimmed) > max_chars:
+        trimmed = trimmed[:max_chars]
+
+    client = OpenAI(api_key=api_key)
+    try:
+        resp = client.audio.speech.create(
+            model="gpt-4o-mini-tts",
+            voice=voice,
+            input=trimmed,
+            response_format=audio_format,
+        )
+        audio_bytes = resp.read() if hasattr(resp, "read") else bytes(resp)
+        encoded = base64.b64encode(audio_bytes).decode("ascii")
+        mime = "audio/mpeg" if audio_format == "mp3" else f"audio/{audio_format}"
+        _debug("tts.generated", {"bytes": len(audio_bytes)})
+        return encoded, mime
+    except Exception as exc:  # noqa: BLE001
+        _debug("tts.error", str(exc))
+        return None, None
 
 
 def _debug(label: str, payload):
@@ -447,7 +480,9 @@ FIR Document Content:
             return jsonify({"reply": "AI service is not configured. Please contact the administrator."}), 500
         reply = reply.strip()
         _debug("chat.reply_length", len(reply))
-        return jsonify({"reply": reply})
+        audio_b64, mime = _synthesize_speech(reply)
+        payload = {"reply": reply, "audio": audio_b64, "mime": mime}
+        return jsonify(payload)
     except Exception as exc:
         _debug("chat.error", str(exc))
         return jsonify({"reply": "I apologize, but I encountered an error processing your request. Please try again."}), 500
