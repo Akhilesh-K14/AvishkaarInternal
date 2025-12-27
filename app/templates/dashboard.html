@@ -223,7 +223,7 @@
     .audio-lab { margin: 80px auto 48px; max-width: 1200px; position: relative; }
     .audio-lab::before { content: ''; position: absolute; inset: -18px; background: radial-gradient(circle at 16% 20%, rgba(138,243,255,0.22), transparent 55%), radial-gradient(circle at 82% 60%, rgba(94,210,255,0.18), transparent 60%); filter: blur(20px); opacity: 0.6; z-index: 0; }
     .audio-section-heading { position: relative; z-index: 1; margin-bottom: 18px; }
-    .audio-shell-hero { position: relative; z-index: 1; padding: 22px; border-radius: 20px; background: linear-gradient(145deg, rgba(10,18,28,0.94), rgba(6,10,16,0.95)); border: 1px solid rgba(138,243,255,0.25); box-shadow: 0 26px 70px rgba(0,0,0,0.65), 0 0 0 1px rgba(255,255,255,0.05) inset; overflow: hidden; backdrop-filter: blur(8px); }
+    .audio-shell-hero { position: relative; z-index: 1; padding: 22px; border-radius: 20px; background: linear-gradient(145deg, rgba(12,18,26,0.9), rgba(8,12,20,0.92)); border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 24px 60px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.04) inset; overflow: hidden; backdrop-filter: blur(10px); }
     .audio-shell-hero::after { content: ''; position: absolute; inset: -30%; background: radial-gradient(circle at 65% 40%, rgba(138,243,255,0.12), transparent 55%), radial-gradient(circle at 25% 70%, rgba(255,255,255,0.08), transparent 60%); opacity: 0.7; pointer-events: none; animation: aurora 14s ease-in-out infinite alternate; }
     .audio-aurora { position: absolute; inset: -20% -10%; background: conic-gradient(from 120deg, rgba(98,226,255,0.12), rgba(255,255,255,0.04), rgba(15,198,255,0.16), rgba(255,255,255,0.06)); filter: blur(48px); opacity: 0.9; mix-blend-mode: screen; pointer-events: none; animation: aurora 18s ease-in-out infinite alternate; }
     .audio-lines { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
@@ -236,12 +236,12 @@
     .audio-title { font-size: clamp(22px, 4vw, 30px); font-weight: 800; letter-spacing: -0.2px; }
     .audio-pill { display: inline-flex; gap: 8px; align-items: center; padding: 10px 14px; background: rgba(138,243,255,0.08); border: 1px solid rgba(138,243,255,0.35); border-radius: 999px; font-size: 12px; font-weight: 800; letter-spacing: 0.4px; text-transform: uppercase; color: #c7f3ff; }
     .audio-meta-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
-    .audio-chip { padding: 8px 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.05); color: #e2f7ff; font-size: 12px; letter-spacing: 0.2px; box-shadow: 0 10px 26px rgba(0,0,0,0.45); }
+    .audio-chip { padding: 8px 12px; border-radius: 12px; border: 1px solid rgba(138,243,255,0.25); background: rgba(138,243,255,0.08); color: #c7f3ff; font-size: 12px; letter-spacing: 0.2px; box-shadow: 0 10px 26px rgba(0,0,0,0.35); }
     .audio-form { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); margin-bottom: 12px; position: relative; z-index: 2; justify-items: center; align-items: center; }
     .audio-input, .audio-select { width: 100%; padding: 12px 14px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.14); background: rgba(0,0,0,0.35); color: #f5f5f5; font-size: 14px; font-family: 'Space Grotesk', system-ui, sans-serif; outline: none; transition: border-color 0.2s, box-shadow 0.2s, background 0.2s; }
     .audio-input:focus, .audio-select:focus { border-color: rgba(138,243,255,0.55); box-shadow: 0 0 0 3px rgba(138,243,255,0.18); background: rgba(0,0,0,0.5); }
-    .audio-button { padding: 12px 16px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2); background: linear-gradient(135deg, #8af3ff, #5ed2ff); color: #0b1720; font-weight: 800; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 14px 34px rgba(94,210,255,0.35); }
-    .audio-button:hover { transform: translateY(-2px); box-shadow: 0 16px 40px rgba(94,210,255,0.45); }
+    .audio-button { padding: 12px 16px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.18); background: linear-gradient(135deg, #8af3ff, #5ed2ff 60%, #8af3ff); color: #0b1720; font-weight: 800; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 14px 30px rgba(94,210,255,0.3); }
+    .audio-button:hover { transform: translateY(-2px); box-shadow: 0 16px 38px rgba(94,210,255,0.42); }
     .audio-hint { font-size: 13px; color: #cfefff; opacity: 0.9; margin: 6px 0 10px; }
     .audio-grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); position: relative; z-index: 2; }
     .audio-grid.show .audio-card { animation: floatIn 0.65s ease both; }
@@ -249,10 +249,10 @@
     .audio-grid.show .audio-card:nth-child(2) { animation-delay: 0.1s; }
     .audio-grid.show .audio-card:nth-child(3) { animation-delay: 0.15s; }
     .audio-grid.show .audio-card:nth-child(4) { animation-delay: 0.2s; }
-    .audio-card { padding: 16px; border-radius: 16px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); backdrop-filter: blur(12px); box-shadow: 0 18px 50px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.05) inset; display: grid; gap: 10px; position: relative; overflow: hidden; }
-    .audio-card::before { content: ''; position: absolute; inset: -40%; background: radial-gradient(circle at 30% 20%, rgba(138,243,255,0.08), transparent 50%), radial-gradient(circle at 80% 80%, rgba(255,255,255,0.05), transparent 55%); opacity: 0.6; pointer-events: none; filter: blur(6px); animation: shimmer 8s linear infinite; }
-    .audio-card h4 { margin: 0; font-size: 15px; letter-spacing: 0.3px; text-transform: uppercase; color: #cfefff; }
-    .audio-list { margin: 0; padding-left: 16px; display: grid; gap: 6px; color: #f7fbff; font-size: 14px; }
+    .audio-card { padding: 16px; border-radius: 16px; background: linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02)); border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(12px); box-shadow: 0 18px 44px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04) inset; display: grid; gap: 10px; position: relative; overflow: hidden; }
+    .audio-card::before { content: ''; position: absolute; inset: -20%; background: radial-gradient(circle at 30% 20%, rgba(138,243,255,0.12), transparent 45%), radial-gradient(circle at 80% 80%, rgba(255,255,255,0.06), transparent 55%); opacity: 0.5; pointer-events: none; filter: blur(8px); animation: shimmer 10s linear infinite; }
+    .audio-card h4 { margin: 0; font-size: 15px; letter-spacing: 0.3px; text-transform: uppercase; color: #dbefff; }
+    .audio-list { margin: 0; padding-left: 16px; display: grid; gap: 6px; color: #eaf6ff; font-size: 14px; }
     .audio-badge { display: inline-flex; gap: 6px; align-items: center; padding: 6px 10px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.16); border-radius: 999px; font-size: 12px; font-weight: 700; letter-spacing: 0.3px; width: fit-content; }
     .audio-sentiment { text-transform: capitalize; }
     .signal-bar { height: 10px; border-radius: 999px; background: rgba(255,255,255,0.08); overflow: hidden; position: relative; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05); }
@@ -287,14 +287,40 @@
     .dot-pulse { width: 8px; height: 8px; border-radius: 50%; background: #8af3ff; animation: blink 1.2s ease-in-out infinite; box-shadow: 0 0 10px rgba(138,243,255,0.7); }
     .audio-empty { padding: 12px; border-radius: 14px; border: 1px dashed rgba(255,255,255,0.18); background: rgba(255,255,255,0.04); color: #dbefff; font-size: 13px; text-align: center; }
 
+    /* Video processing flair */
+    .clip-processing { position: absolute; inset: 12px; border-radius: 18px; border: 1px solid rgba(255,255,255,0.08); background: radial-gradient(circle at 20% 30%, rgba(138,243,255,0.12), transparent 55%), rgba(6,10,16,0.9); box-shadow: 0 26px 64px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.05) inset; display: none; align-items: center; justify-content: center; gap: 16px; overflow: hidden; z-index: 6; backdrop-filter: blur(10px); }
+    .clip-processing.visible { display: flex; }
+    .clip-processing .scanline { position: absolute; width: 160%; height: 2px; background: linear-gradient(90deg, transparent, rgba(138,243,255,0.8), transparent); opacity: 0.55; animation: scanGlitch 1.6s linear infinite; mix-blend-mode: screen; }
+    .clip-processing .scanline.two { animation-delay: 0.4s; opacity: 0.35; }
+    .clip-core { position: relative; z-index: 2; display: grid; gap: 10px; text-align: center; }
+    .clip-title { font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; color: #c7f3ff; }
+    .clip-bars { display: inline-flex; gap: 8px; }
+    .clip-bars span { width: 10px; height: 34px; border-radius: 10px; background: linear-gradient(135deg, rgba(138,243,255,0.8), rgba(110,212,255,0.55)); box-shadow: 0 10px 24px rgba(0,0,0,0.4); animation: barSweep 0.9s ease-in-out infinite; }
+    .clip-bars span:nth-child(2) { animation-delay: 0.1s; }
+    .clip-bars span:nth-child(3) { animation-delay: 0.2s; }
+    .clip-bars span:nth-child(4) { animation-delay: 0.3s; }
+    .clip-note { font-size: 12px; color: #9fdcff; letter-spacing: 0.3px; }
+
+    .video-card { border-color: rgba(255,255,255,0.1); box-shadow: 0 18px 44px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04) inset; }
+    .video-chip { width: fit-content; padding: 8px 12px; border-radius: 999px; background: rgba(251,191,36,0.14); border: 1px solid rgba(251,191,36,0.5); color: #fcdca3; font-weight: 800; letter-spacing: 0.4px; text-transform: uppercase; }
+    .video-verdict { font-size: 22px; font-weight: 800; letter-spacing: -0.2px; color: #fff7d6; }
+    .video-meter { position: relative; width: 100%; height: 10px; border-radius: 999px; background: rgba(255,255,255,0.08); overflow: hidden; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06); }
+    .video-meter-fill { position: absolute; top: 0; left: 0; height: 100%; width: 0%; border-radius: 999px; background: linear-gradient(135deg, #fbbf24, #f97316); box-shadow: 0 0 12px rgba(249,115,22,0.7); transition: width 0.5s ease; }
+    .video-summary { font-size: 14px; color: #fff4ce; line-height: 1.5; }
+    .video-cues { margin: 0; padding-left: 16px; color: #fce5b5; display: grid; gap: 6px; font-size: 13px; }
+    .video-glow { position: absolute; inset: -40%; background: radial-gradient(circle, rgba(251,191,36,0.1), transparent 55%); opacity: 0.7; pointer-events: none; animation: shimmer 8s linear infinite; }
+
+    @keyframes scanGlitch { 0% { transform: translateY(-40%); } 50% { transform: translateY(20%); } 100% { transform: translateY(60%); } }
+    @keyframes barSweep { 0%, 100% { transform: scaleY(0.4); opacity: 0.6; } 50% { transform: scaleY(1); opacity: 1; } }
+
     /* Dynamic audio viz + verdict chip */
-    .audio-verdict-chip { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.12); background: linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02)); color: #e9fbff; font-weight: 800; letter-spacing: 0.2px; text-transform: uppercase; box-shadow: 0 12px 30px rgba(0,0,0,0.45); width: fit-content; transition: transform 0.3s ease, box-shadow 0.3s ease; }
+    .audio-verdict-chip { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.12); background: linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02)); color: #e9fbff; font-weight: 800; letter-spacing: 0.2px; text-transform: uppercase; box-shadow: 0 12px 28px rgba(0,0,0,0.4); width: fit-content; transition: transform 0.3s ease, box-shadow 0.3s ease; }
     .audio-verdict-chip.truthful { border-color: rgba(52,211,153,0.6); color: #d1fff0; box-shadow: 0 14px 32px rgba(52,211,153,0.35); }
     .audio-verdict-chip.uncertain { border-color: rgba(251,191,36,0.6); color: #fff6d6; box-shadow: 0 14px 32px rgba(251,191,36,0.35); }
     .audio-verdict-chip.lying { border-color: rgba(248,113,113,0.6); color: #ffe2e2; box-shadow: 0 14px 32px rgba(248,113,113,0.35); }
     .audio-verdict-chip .pulse-dot { width: 10px; height: 10px; border-radius: 50%; background: currentColor; box-shadow: 0 0 12px currentColor; animation: glowPulse 1.4s ease-in-out infinite; }
 
-    .audio-wave-bars { position: relative; display: grid; grid-auto-flow: column; gap: 6px; align-items: end; width: 100%; height: 96px; padding: 12px 2px 4px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.08); background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02)); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04); overflow: hidden; }
+    .audio-wave-bars { position: relative; display: grid; grid-auto-flow: column; gap: 6px; align-items: end; width: 100%; height: 96px; padding: 12px 2px 4px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.08); background: linear-gradient(180deg, rgba(12,18,26,0.9), rgba(8,12,20,0.85)); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05); overflow: hidden; }
     .audio-wave-bars::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(255,255,255,0.06), transparent 35%, transparent 65%, rgba(255,255,255,0.06)); opacity: 0.35; pointer-events: none; }
     .wave-bar { position: relative; width: 12px; height: 60px; border-radius: 8px; background: linear-gradient(135deg, rgba(138,243,255,0.22), rgba(94,210,255,0.18)); border: 1px solid rgba(138,243,255,0.35); box-shadow: 0 12px 26px rgba(0,0,0,0.4); transform-origin: bottom; transform: scaleY(0.2); animation: waveRise 2s ease-in-out infinite; animation-delay: calc(var(--i) * 0.08s); }
     .wave-bar::after { content: ''; position: absolute; inset: 0; border-radius: 8px; background: linear-gradient(135deg, rgba(255,255,255,0.25), transparent); opacity: 0.5; }
@@ -658,6 +684,15 @@
         <div class="audio-shell-hero">
           <div class="audio-aurora"></div>
           <div class="audio-lines"><span></span><span></span><span></span></div>
+          <div class="clip-processing" id="clip-processing">
+            <div class="scanline"></div>
+            <div class="scanline two"></div>
+            <div class="clip-core">
+              <div class="clip-title">Video micro-expression sweep</div>
+              <div class="clip-bars"><span></span><span></span><span></span><span></span></div>
+              <div class="clip-note">Extracting audio + scanning facial cues…</div>
+            </div>
+          </div>
           <div class="audio-head">
             <div>
               <div class="audio-meta-row" style="margin-top:0;">
@@ -677,14 +712,14 @@
               </select>
             </div>
             <div>
-              <label for="audio-file" class="section-sub" style="display:block; margin-bottom:6px;">Interrogation audio (wav/mp3/m4a/ogg/flac/webm)</label>
-              <input id="audio-file" name="audio" type="file" accept="audio/*" class="audio-input" required />
+              <label for="audio-file" class="section-sub" style="display:block; margin-bottom:6px;">Interrogation clip (audio/video)</label>
+              <input id="audio-file" name="audio" type="file" accept="audio/*,video/*" class="audio-input" required />
             </div>
             <div style="align-self:end; display:flex; gap:10px;">
-              <button type="submit" class="audio-button" id="audio-submit">Analyze Audio</button>
+              <button type="submit" class="audio-button" id="audio-submit">Analyze Clip</button>
             </div>
           </form>
-          <div class="audio-hint">Tip: pair the clip with the correct character to keep transcript, risks, and actions grounded in context.</div>
+          <div class="audio-hint">Tip: pair the clip with the correct character. Video uploads trigger facial-cue reads alongside audio truth scoring.</div>
 
           <div class="audio-grid" id="audio-results" style="display:none;">
             <div class="audio-card">
@@ -709,6 +744,14 @@
               <div class="section-sub" style="margin-top:6px;">Truthfulness signal</div>
               <div class="signal-bar"><div class="signal-fill" id="audio-signal"></div></div>
               <div class="sentiment-legend" id="sentiment-legend"></div>
+            </div>
+            <div class="audio-card video-card" id="video-expression-card" style="grid-column: 1 / -1; display:none;">
+              <div class="video-glow"></div>
+              <div class="video-chip">Facial expression read</div>
+              <div class="video-verdict" id="video-verdict">—</div>
+              <div class="video-meter"><div class="video-meter-fill" id="video-confidence"></div></div>
+              <div class="video-summary" id="video-summary">Video expressions not analyzed yet.</div>
+              <ul class="video-cues" id="video-cues"></ul>
             </div>
           </div>
 
@@ -1139,6 +1182,12 @@
     const audioWaveBars = document.getElementById('audio-wave-bars');
     const audioVerdictChip = document.getElementById('audio-verdict-chip');
     const audioEmpty = document.getElementById('audio-empty');
+    const clipProcessing = document.getElementById('clip-processing');
+    const videoCard = document.getElementById('video-expression-card');
+    const videoVerdict = document.getElementById('video-verdict');
+    const videoConfidence = document.getElementById('video-confidence');
+    const videoSummary = document.getElementById('video-summary');
+    const videoCues = document.getElementById('video-cues');
 
     const characterDeck = {{ character_questions | default([]) | tojson }} || [];
     const profileDeck = {{ character_profiles | default([]) | tojson }} || [];
@@ -1270,9 +1319,24 @@
       waveTimer = setInterval(setHeights, 900);
     };
 
-    const setAudioLoading = (isLoading) => {
+    const setAudioLoading = (isLoading, isVideoClip = false) => {
       if (audioLoading) audioLoading.style.display = isLoading ? 'flex' : 'none';
       if (audioSubmit) audioSubmit.disabled = isLoading;
+      if (clipProcessing) clipProcessing.classList.toggle('visible', isLoading && isVideoClip);
+    };
+
+    const renderVideoExpression = (expr) => {
+      if (!videoCard) return;
+      if (!expr) {
+        videoCard.style.display = 'none';
+        return;
+      }
+      videoCard.style.display = 'grid';
+      if (videoVerdict) videoVerdict.textContent = expr.verdict || 'Uncertain';
+      const conf = Math.min(1, Math.max(0, Number(expr.confidence) || 0.5));
+      if (videoConfidence) videoConfidence.style.width = `${Math.round(conf * 100)}%`;
+      if (videoSummary) videoSummary.textContent = expr.expression_summary || 'Facial cues analyzed.';
+      renderList(videoCues, expr.cues, 'No strong facial cues surfaced.');
     };
 
     if (audioForm && audioFile && audioSubmit) {
@@ -1282,17 +1346,20 @@
       audioForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         if (!audioFile.files || audioFile.files.length === 0) {
-          alert('Please select an interrogation audio file.');
+          alert('Please select an interrogation clip (audio or video).');
           return;
         }
+        const fileObj = audioFile.files[0];
+        const isVideoClip = (fileObj.type || '').startsWith('video/') || /\.(mp4|mov|mkv|avi|webm|m4v)$/i.test(fileObj.name || '');
         const formData = new FormData();
-        formData.append('audio', audioFile.files[0]);
+        formData.append('audio', fileObj);
         formData.append('character', (audioCharacter && audioCharacter.value) || 'General');
         if (firTextArea && firTextArea.value) {
           formData.append('context', firTextArea.value);
         }
 
-        setAudioLoading(true);
+        setAudioLoading(true, isVideoClip);
+        renderVideoExpression(null);
 
         try {
           const res = await fetch('/analyze-audio', { method: 'POST', body: formData });
@@ -1305,7 +1372,10 @@
           renderList(audioRisks, insights.risks || insights.contradictions, 'No contradictions flagged.');
           renderList(audioActions, insights.actions, 'No actions suggested.');
 
-          const verdict = insights.verdict || insights.sentiment || 'uncertain';
+          const videoExpression = (data.video && data.video.expression) || null;
+          renderVideoExpression(videoExpression);
+
+          const verdict = (videoExpression && videoExpression.verdict) || insights.verdict || insights.sentiment || 'uncertain';
           if (audioSentiment) audioSentiment.textContent = verdict;
           if (audioVerdictReason) audioVerdictReason.textContent = insights.verdict_reason || 'Based on detected contradictions vs FIR context.';
           if (audioVerdictChip) {
@@ -1326,7 +1396,7 @@
         } catch (err) {
           alert(err.message || 'Unable to analyze audio right now.');
         } finally {
-          setAudioLoading(false);
+          setAudioLoading(false, false);
         }
       });
     }

@@ -220,6 +220,100 @@ def _analyze_audio_insights(transcript: str, character: str, fir_context: str):
         return None
 
 
+def _sample_video_frames(video_path: str, max_frames: int = 4):
+    """Grab a handful of face-focused frames to keep LLM payload tiny."""
+
+    frames = []
+    cap = cv2.VideoCapture(video_path)
+    if not cap.isOpened():
+        return frames
+
+    try:
+        total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT)) or 0
+        step = max(total_frames // max_frames, 1)
+
+        cascade_path = os.path.join(cv2.data.haarcascades, "haarcascade_frontalface_default.xml")
+        face_cascade = cv2.CascadeClassifier(cascade_path) if os.path.exists(cascade_path) else None
+
+        for idx in range(max_frames):
+            target = idx * step
+            cap.set(cv2.CAP_PROP_POS_FRAMES, target)
+            ok, frame = cap.read()
+            if not ok or frame is None:
+                continue
+
+            region = frame
+            if face_cascade and not face_cascade.empty():
+                gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+                faces = face_cascade.detectMultiScale(gray, scaleFactor=1.2, minNeighbors=5, minSize=(60, 60))
+                if len(faces) > 0:
+                    x, y, w, h = sorted(faces, key=lambda f: f[2] * f[3], reverse=True)[0]
+                    region = frame[y : y + h, x : x + w]
+
+            rgb = cv2.cvtColor(region, cv2.COLOR_BGR2RGB)
+            ok, buf = cv2.imencode(".jpg", rgb, [cv2.IMWRITE_JPEG_QUALITY, 78])
+            if not ok:
+                continue
+            frames.append(base64.b64encode(buf).decode("ascii"))
+    finally:
+        cap.release()
+
+    return frames
+
+
+def _analyze_facial_truth_signals(frames_b64: list[str], transcript: str, fir_context: str, character: str):
+    """Ask the LLM to read facial cues from a handful of video frames."""
+
+    api_key = _get_api_key()
+    if not api_key or not frames_b64:
+        return None
+
+    client = OpenAI(api_key=api_key)
+    system_msg = (
+        "You review interrogation video stills. Assess micro-expressions and body cues for honesty. "
+        "Respond STRICT JSON with keys: expression_summary (2-4 bulletish sentences), cues (array of short cues), "
+        "verdict (truthful/uncertain/lying), confidence (0-1 float), recommended_checks (2-3 quick suggestions). "
+        "Be non-accusatory; when unsure lean to 'uncertain'."
+    )
+
+    transcript_snippet = (transcript or "")[:700]
+    fir_snippet = (fir_context or "")[:700]
+
+    content = [
+        {
+            "type": "text",
+            "text": (
+                "Character: "
+                + (character or "Unknown")
+                + "\nFIR cues (truncated):\n"
+                + fir_snippet
+                + "\nTranscript snippet:\n"
+                + transcript_snippet
+            ),
+        }
+    ]
+
+    for frame_b64 in frames_b64[:4]:
+        content.append({"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{frame_b64}"}})
+
+    try:
+        completion = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": system_msg},
+                {"role": "user", "content": content},
+            ],
+            temperature=0.25,
+            max_tokens=400,
+            response_format={"type": "json_object"},
+        )
+        raw = completion.choices[0].message.content if completion.choices else ""
+        return json.loads(raw) if raw else None
+    except Exception as exc:  # noqa: BLE001
+        _debug("video.expression_error", str(exc))
+        return None
+
+
 def _debug(label: str, payload):
     """Lightweight debug printer to aid troubleshooting without leaking secrets."""
     try:
@@ -558,8 +652,11 @@ def analyze_audio():
         return jsonify({"error": "Please attach an audio file."}), 400
 
     ext = os.path.splitext(audio_file.filename)[1].lower()
-    if ext not in {".wav", ".mp3", ".m4a", ".aac", ".ogg", ".flac", ".webm"}:
-        return jsonify({"error": "Unsupported audio type. Use wav/mp3/m4a/aac/ogg/flac/webm."}), 400
+    audio_exts = {".wav", ".mp3", ".m4a", ".aac", ".ogg", ".flac", ".webm"}
+    video_exts = {".mp4", ".mov", ".mkv", ".avi", ".webm", ".m4v"}
+    is_video = ext in video_exts
+    if ext not in audio_exts | video_exts:
+        return jsonify({"error": "Unsupported clip type. Use audio (wav/mp3/m4a/aac/ogg/flac/webm) or video (mp4/mov/mkv/avi/webm/m4v)."}), 400
 
     with tempfile.NamedTemporaryFile(delete=False, suffix=ext) as tmp:
         audio_file.save(tmp.name)
@@ -576,9 +673,38 @@ def analyze_audio():
 
         insights = _analyze_audio_insights(transcript, character, fir_context) or {}
         _debug("audio.insights_raw", insights)
+
+        video_frames = []
+        video_expression = None
+        if is_video:
+            video_frames = _sample_video_frames(temp_path, max_frames=4)
+            _debug("video.frames_captured", len(video_frames))
+            video_expression = _analyze_facial_truth_signals(video_frames, transcript, fir_context, character)
+            _debug("video.expression", video_expression)
+            if video_expression:
+                try:
+                    expr_conf = float(video_expression.get("confidence", 0.5))
+                except (TypeError, ValueError):
+                    expr_conf = 0.5
+                try:
+                    audio_signal = float(insights.get("signal")) if insights and "signal" in insights else 0.5
+                except (TypeError, ValueError):
+                    audio_signal = 0.5
+                combined_signal = max(0.0, min(1.0, (audio_signal + expr_conf) / 2))
+                insights["signal"] = combined_signal
+                insights["facial_verdict"] = video_expression.get("verdict")
+                insights["facial_confidence"] = expr_conf
+                insights["facial_cues"] = video_expression.get("cues")
+                insights["facial_summary"] = video_expression.get("expression_summary")
+
         payload = {
             "transcript": transcript,
             "insights": insights,
+            "video": {
+                "is_video": is_video,
+                "frames": len(video_frames),
+                "expression": video_expression,
+            },
         }
         return jsonify(payload)
     finally:
